@@ -7,19 +7,64 @@ const kSearch=document.getElementById("ks_button");
 const zSearch=document.getElementById("zs_button");
 const bSearch=document.getElementById("bs_button");
 
+
+function RequestPHP(sign, filename, okPtr, errPtr){
+  var xhr = new XMLHttpRequest();
+  if(!["GET", "POST"].includes(sign)){ 
+    console.log("Error on Http header");
+  }
+  xhr.open(sign, filename);
+
+  xhr.onreadystatechange = function(){
+    const DONE=4;
+    const OK=200;
+    if (xhr.readyState==DONE){
+      if(xhr.status==OK){
+        okPtr();
+      }
+      else{
+        errPtr();
+      }
+    }
+}
+
 kSearch.onclick=()=>{
-  console.log("kunde search");
-  //Implementation here
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "KundeSearch.php");
+
+  xhr.onreadystatechange = function(){
+    const DONE=4;
+    const OK=200;
+    if (xhr.readyState==DONE){
+      if(xhr.status==OK){
+        console.log(xhr.responseText);
+        var infotable=document.getElementById("info");
+        infotable.innerHTML=xhr.responseText;
+      }
+      else{
+        console.log("Error during Kunde search");
+      }
+    }
+  }
+
+  xhr.send(null);
 }
 
 zSearch.onclick=()=>{
   console.log("zimmer search");
   //Implementation here
+
+  var infotable=document.getElementById("info");
+  infotable.innerHTML="";
 }
 
 bSearch.onclick=()=>{
   console.log("buchung search");
   //Implementation here
+
+  var infotable=document.getElementById("info");
+  infotable.innerHTML="";
 }
 
 function CreateForm(formObject, btnClickEvent){
