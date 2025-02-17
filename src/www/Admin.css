@@ -14,7 +14,11 @@ body{
 }
 
 #minfo{
-  content:center;
+  margin-left:auto;
+  margin-right:auto;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 
 #container{
@@ -38,12 +42,24 @@ body{
 }
 
 #neu_kunde{
+  margin-left:auto;
+  margin-right:auto;
 }
 
 #infotable{
   border:3px solid black;
   min-height:50%;
   margin:7px;
+}
+
+.searchbar{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+h3{
+  text-align:center;
 }
 
 h4{
