@@ -7,7 +7,9 @@ const kSearch=document.getElementById("ks_button");
 const zSearch=document.getElementById("zs_button");
 const bSearch=document.getElementById("bs_button");
 
+const infotable=document.getElementById("info");
 
+//Ajax XML
 function RequestPHP(sign, filename, okPtr, errPtr){
   var xhr = new XMLHttpRequest();
   if(!["GET", "POST"].includes(sign)){ 
@@ -17,7 +19,6 @@ function RequestPHP(sign, filename, okPtr, errPtr){
 
   xhr.onreadystatechange = function(){
     const DONE=4;
-    const OK=200;
     if (xhr.readyState==DONE){
       if(xhr.status==OK){
         okPtr();
@@ -26,49 +27,71 @@ function RequestPHP(sign, filename, okPtr, errPtr){
         errPtr();
       }
     }
-}
-
-kSearch.onclick=()=>{
-
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", "KundeSearch.php");
-
-  xhr.onreadystatechange = function(){
-    const DONE=4;
-    const OK=200;
-    if (xhr.readyState==DONE){
-      if(xhr.status==OK){
-        console.log(xhr.responseText);
-        var infotable=document.getElementById("info");
-        infotable.innerHTML=xhr.responseText;
-      }
-      else{
-        console.log("Error during Kunde search");
-      }
-    }
   }
-
   xhr.send(null);
 }
 
-zSearch.onclick=()=>{
-  console.log("zimmer search");
-  //Implementation here
+//Fetch
+async function RequestPHPAsync(url, todo, err){
+  try{
+    const res = await fetch (url);
+    const data = await res.text();
+    todo(data);
+  }
+  catch{
+    err();
+  }
+}
 
-  var infotable=document.getElementById("info");
+kSearch.onclick=()=>{
+  const squery=document.getElementById("search_kunde");
+  const url = "AdminSearch.php?req=Kunde&search="+encodeURIComponent(squery.value);
+  console.log(url);
   infotable.innerHTML="";
+
+  RequestPHPAsync(url, 
+      (data)=>{
+        infotable.innerHTML+=data;
+      },
+      ()=>{
+        console.log("Error Requesting Customer");
+      }
+  )
+
+}
+
+zSearch.onclick=()=>{
+  const squery=document.getElementById("search_zimmer");
+  const url="AdminSearch.php?req=Zimmer&search="+encodeURIComponent(squery.value);
+  infotable.innerHTML="";
+  
+  RequestPHPAsync(url, 
+      (data)=>{
+        infotable.innerHTML+=data;
+      },
+      ()=>{
+        console.log("Error Requesting Customer");
+      }
+  )
 }
 
 bSearch.onclick=()=>{
-  console.log("buchung search");
-  //Implementation here
-
-  var infotable=document.getElementById("info");
+  const squery=document.getElementById("search_buchung");
+  const url="AdminSearch.php?req=Buchung&search="+encodeURIComponent(squery.value);
   infotable.innerHTML="";
+
+  RequestPHPAsync(url, 
+      (data)=>{
+        infotable.innerHTML+=data;
+      },
+      ()=>{
+        console.log("Error Requesting Customer");
+      }
+  )
 }
 
 function CreateForm(formObject, btnClickEvent){
-  var infotable=document.getElementById("info");
+  //var infotable=document.getElementById("info");
   infotable.innerHTML = "";
 
   for(var prop in formObject){ 
@@ -88,6 +111,7 @@ function CreateForm(formObject, btnClickEvent){
       div25.appendChild(label);
 
       var input=document.createElement("input");
+      input.name=prop;
       input.type="text";
       input.style.width="50%";
       div75.appendChild(input);
@@ -99,8 +123,8 @@ function CreateForm(formObject, btnClickEvent){
   }
 
   var submit=document.createElement("button");
-  submit.innerHTML="Submit";
-  submit.type="button";
+  submit.innerHTML="Send";
+  submit.type="submit";
   submit.onclick=btnClickEvent;
 
   infotable.appendChild(submit);
@@ -114,12 +138,18 @@ newCustButton.onclick=()=>{
 };
 
 function SubmitNewCustomer(){
-  console.log("cust");
-  // Implementation here
+  infotable.innerHTML="";
+
+  infotabel.onsubmit="return false";
+
+  infotable.method="POST";
+  infotable.action="AdminDataSubmit.php";
+
+  infotable.submit();
 }
 
 newReserveButton.onclick=()=>{
-  var reserve = new Reservation("","","","");
+  var reserve = new Reservation("","","","","","");
 
   CreateForm(reserve, SubmitNewReservation);
 };
