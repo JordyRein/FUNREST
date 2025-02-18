@@ -3,6 +3,7 @@
 include "Customer.php";
 include "Reservation.php";
 include "Room.php";
+include "SQLConnection.php";
 
 header("Content-Type: application/json");
 
@@ -14,7 +15,16 @@ switch($_GET["req"]){
   case "Kunde":
     //$cust = new Customer("Funi", "Not so", "some street", "1234", "somwhere", "funi@funi.fun");
     //echo json_encode($cust);
-    echo urldecode($_GET["search"]);
+    //echo urldecode($_GET["search"]);
+    $s=urldecode($_GET["search"]);
+
+    $conn=ConnectMySQL();
+    if($conn instanceof mysqli){
+      $query = "call SearchKunde(".$s.")";
+      $res = $conn->query($query);
+    }
+    
+
     break;
 
   case "Zimmer":

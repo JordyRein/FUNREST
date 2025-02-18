@@ -10,7 +10,7 @@ const bSearch=document.getElementById("bs_button");
 const infotable=document.getElementById("info");
 
 //Ajax XML
-function RequestPHP(sign, filename, okPtr, errPtr){
+function RequestPHP(sign, filename, okPtr, errPtr, data){
   var xhr = new XMLHttpRequest();
   if(!["GET", "POST"].includes(sign)){ 
     console.log("Error on Http header");
@@ -19,16 +19,17 @@ function RequestPHP(sign, filename, okPtr, errPtr){
 
   xhr.onreadystatechange = function(){
     const DONE=4;
+    const OK=200;
     if (xhr.readyState==DONE){
       if(xhr.status==OK){
-        okPtr();
+        okPtr(xhr.responseText);
       }
       else{
         errPtr();
       }
     }
   }
-  xhr.send(null);
+  xhr.send(data);
 }
 
 //Fetch
@@ -124,7 +125,7 @@ function CreateForm(formObject, btnClickEvent){
 
   var submit=document.createElement("button");
   submit.innerHTML="Send";
-  submit.type="submit";
+  submit.type="button";
   submit.onclick=btnClickEvent;
 
   infotable.appendChild(submit);
@@ -138,14 +139,15 @@ newCustButton.onclick=()=>{
 };
 
 function SubmitNewCustomer(){
-  infotable.innerHTML="";
-
-  infotabel.onsubmit="return false";
-
-  infotable.method="POST";
-  infotable.action="AdminDataSubmit.php";
-
-  infotable.submit();
+  var fd = new FormData(infotable);
+  
+  RequestPHP("POST", "AdminDataSubmit.php?search=Kunde",
+      (data)=>{
+        infotable.innerHTML=data;
+      },
+      ()=>{
+      },
+      fd);
 }
 
 newReserveButton.onclick=()=>{
@@ -155,6 +157,13 @@ newReserveButton.onclick=()=>{
 };
 
 function SubmitNewReservation(){
-  console.log("reserve");
-  // Implementation here
+  var fd = new FormData(infotable);
+
+  RequestPHP("POST", "AdminDataSubmit.php?search=Buchung",
+      (data)=>{
+        infotable.innerHTML=data;
+      },
+      ()=>{
+      },
+      fd);
 }
