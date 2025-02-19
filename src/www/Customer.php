@@ -6,15 +6,20 @@ class Customer{
   public $Address;
   public $PLZ;
   public $Location;
-  public $Email;
+  public $Sex;
+  public $Birthday;
+  public $Stammgast;
 
-  function __construct($fname, $lname, $addr, $plz, $loc, $email){
+
+  function __construct($fname, $lname, $addr, $plz, $loc, $sex, $bday,$sg){
     $this->FirstName=$fname;
     $this->LastName=$lname;
     $this->Address=$addr;
     $this->PLZ=$plz;
     $this->Location=$loc;
-    $this->Email=$email;
+    $this->Sex=$sex;
+    $this->Birthday=$bday;
+    $this->Stammgast=$sg;
   } 
 }
 

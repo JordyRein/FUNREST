@@ -13,17 +13,35 @@ if(!isset($_GET["req"])){
 
 switch($_GET["req"]){
   case "Kunde":
-    //$cust = new Customer("Funi", "Not so", "some street", "1234", "somwhere", "funi@funi.fun");
-    //echo json_encode($cust);
-    //echo urldecode($_GET["search"]);
     $s=urldecode($_GET["search"]);
 
     $conn=ConnectMySQL();
-    if($conn instanceof mysqli){
-      $query = "call SearchKunde(".$s.")";
-      $res = $conn->query($query);
+    if(!$conn instanceof mysqli){
+      echo json_encode("Something went wrong with database connection\n");
+      break;
     }
-    
+
+    $query = "call mssp_SearchKunde('%".$s."%')";
+    $res = $conn->query($query);
+
+    $i=0;
+    $list_cust=array();
+    foreach ($res as $row){
+      array_push($list_cust,new Customer($row['Vorname'],
+          $row['Nachname'],
+          $row['Strasse_Nummer'],
+          $row['PLZ'],
+          $row['Stadt'],
+          $row['Geschlecht'],
+          $row['Geburstdatum'],
+          $row['Stammgast'])
+      );
+
+      ++$i;
+    }
+    CloseMySQL($conn);
+
+    echo json_encode($list_cust);
 
     break;
 
@@ -31,7 +49,35 @@ switch($_GET["req"]){
     //$room = new Room("1422", "Fancy", "Very Good", 2000, 1.5);
     //echo json_encode($room);
 
-    echo urldecode($_GET["search"]);
+    $s=urldecode($_GET["search"]);
+
+    $conn=ConnectMySQL();
+    if(!$conn instanceof mysqli){
+      echo json_encode("Something went wrong with database connection\n");
+      break;
+    }
+
+    $query = "call mssp_SearchRoom('%".$s."%')";
+    $res = $conn->query($query);
+
+    $i=0;
+    $list_cust=array();
+    foreach ($res as $row){
+      array_push($list_cust,new Customer($row['Vorname'],
+          $row['Nachname'],
+          $row['Strasse_Nummer'],
+          $row['PLZ'],
+          $row['Stadt'],
+          $row['Geschlecht'],
+          $row['Geburstdatum'],
+          $row['Stammgast'])
+      );
+
+      ++$i;
+    }
+    CloseMySQL($conn);
+
+    echo json_encode($list_cust);
     break;
 
   case "Buchung":
