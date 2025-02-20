@@ -14,6 +14,7 @@ drop table if exists LoginDaten;
 
 create table Zimmer(
   Id int auto_increment not null primary key,
+  Name nvarchar(50),
   KategorieId int,
   Typ int,
   Bild nvarchar(255)
@@ -65,6 +66,7 @@ create table Bewertung(
   Id int auto_increment not null primary key,
   KundenID int,
   MitarbeiterID int,
+  Rating int,
   BewertungText nvarchar(255),
   Geprueft boolean
 );

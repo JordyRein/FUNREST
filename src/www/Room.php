@@ -1,18 +1,18 @@
 <?php
 
 class Room{
-  public $RoomId;
-  public $RoomType;
-  public $Categorie;
-  public $Price;
-  public $PriceScale;
+  public $Name;
+  public $Typ;
+  public $Kategorie;
+  public $Preis;
+  public $Bild;
 
-  function __construct($id, $typ,$cat,$price,$scale){
-    $this->RoomId=$id;
-    $this->RoomType=$typ;
-    $this->Categorie=$cat;
-    $this->Price=$price;
-    $this->PriceScale=$sclae;
+  function __construct($name,$cat,$typ,$bild,$price){
+    $this->Name=$name;
+    $this->Typ=$typ;
+    $this->Kategorie=$cat;
+    $this->Preis=$price;
+    $this->Bild=$bild;
   }
 }
 
