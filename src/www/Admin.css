@@ -1,0 +1,81 @@
+body{
+  background-color:silver;
+}
+
+#header{
+  width:100%;
+  display:inline-flex;
+  background-color:lightblue;
+  margin:5px;
+}
+
+#logo{
+  margin: 5px;
+}
+
+#minfo{
+  margin-left:auto;
+  margin-right:auto;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+#container{
+}
+
+#searchbox{
+  width:100%;
+  display:inline-flex;
+  margin:5px;
+}
+
+.box{
+  width:33%;
+  border:3px solid black;
+  padding:5px;
+  margin:5px;
+  justify-content:center;
+}
+
+#search_kunde{
+}
+
+#neu_kunde{
+  margin-left:auto;
+  margin-right:auto;
+}
+
+#infotable{
+  border:3px solid black;
+  min-height:50%;
+  margin:7px;
+}
+
+.searchbar{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+h3{
+  text-align:center;
+}
+
+h4{
+  margin:5px;
+}
+
+#info{
+  margin:5px;
+  padding:5px;
+
+}
+
+#footer{
+  position:fixed;
+  left:0;
+  bottom:0;
+  width:100%;
+  background-color:azure;
+}
