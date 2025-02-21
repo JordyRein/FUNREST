@@ -63,14 +63,12 @@ switch($_GET["req"]){
     $i=0;
     $list_cust=array();
     foreach ($res as $row){
-      array_push($list_cust,new Customer($row['Vorname'],
-          $row['Nachname'],
-          $row['Strasse_Nummer'],
-          $row['PLZ'],
-          $row['Stadt'],
-          $row['Geschlecht'],
-          $row['Geburstdatum'],
-          $row['Stammgast'])
+      array_push($list_cust,new Zimmer(
+          $row['Name'],
+          $row['Kategorie'],
+          $row['Betten'],
+          $row['Bild'],
+          $row['Preis'])
       );
 
       ++$i;

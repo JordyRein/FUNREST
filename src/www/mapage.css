@@ -1,0 +1,129 @@
+#content{
+    display: grid;
+    grid-template-columns: none;
+    grid-template-rows: auto 1fr;
+    background-color: bisque;
+}
+#toolGrid{
+    grid-row: 1/2;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    margin-bottom: 20px;
+    gap: 20px;
+    width: 98%;
+}
+.filterBox{
+    display: block;
+    border: 2px solid black;
+    border-radius: 10px;
+    margin: 10px;
+    height: auto;
+    width: auto;
+    background-color: blueviolet;
+    padding: 15px;
+    justify-content: center;
+}
+
+#dataGrid{
+    grid-row: 2/3;
+    display: block;
+    background-color: aqua;
+    width: auto;
+    height: auto;
+    padding: 30px;
+}
+
+/* .zimmerDiv{
+    display: grid;
+    grid-template-columns: 150px 100px 100px 100px;
+    margin: 10px;
+    border: 2px solid black;
+    border-radius: 2px;
+}
+span{
+    margin-right: 30px;
+    background-color: blueviolet;
+} */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+    cursor: pointer;
+    position: relative;
+}
+
+th:hover {
+    background-color: #ddd;
+}
+
+/* Sortierungsindikatoren */
+.sort-indicator {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 5px;
+    vertical-align: middle;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+}
+
+.sort-asc {
+    border-bottom: 5px solid #000;
+}
+
+.sort-desc {
+    border-top: 5px solid #000;
+}
+
+/* Keine Sortierung */
+.sort-none {
+    display: none;
+}
+
+
+.bewertungContainer {
+    margin: 20px auto;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.ersteReihe {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.nameSpan, .sterneSpan {
+    padding: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    justify-self: center;
+}
+
+.checkboxContainer {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.textBewertung {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    resize: none;
+}

@@ -5,14 +5,14 @@ delete from Mitarbeiter;
 delete from Buchung;
 delete from Bewertung;
 
-insert into Zimmer(KategorieId, Typ, Bild)
-values (1, 1, N'bild1'),
-       (2, 2, N'bild2'),
-       (1, 2, N'bild3'),
-       (3, 2, N'bild4'),
-       (2, 1, N'bild5'),
-       (1, 1, N'bild6'),
-       (3, 1, N'bild7');
+insert into Zimmer(Name, KategorieId, Typ, Bild)
+values (N'', 1, 1, N'bild1'),
+       (N'', 2, 2, N'bild2'),
+       (N'', 1, 2, N'bild3'),
+       (N'', 3, 2, N'bild4'),
+       (N'', 2, 1, N'bild5'),
+       (N'', 1, 1, N'bild6'),
+       (N'', 3, 1, N'bild7');
 
 insert into Kunde(Vorname, Nachname, Strasse_Nummer, PLZ, Stadt, Geschlecht, Geburstdatum, Stammgast, LoginId)
 values (N'Anton',   N'Bringal',  N'universer_3',   88333, N'Somewhere', N'M', N'2000-1-12',0, NULL),

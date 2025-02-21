@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="headerfoooter.css">
+    <link rel="stylesheet" href="visitorpage.css">
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="mapage.css">
+
+    <script src="mapage.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="gridContainerHeader">
+        <div class="hotellogo">
+          <img id="logo" src="LogoFUNREST.png" alt="Logo der Hotelkette FUNREST" height="130">
+        </div>
+        <div class="hotelname">
+          <h1 id="hotelname">FUNREST Hotels</h1>
+        </div>
+        <div id="buttonsHeader">
+          <button id="headerButton" onclick="logout()">Ausloggen</button>
+        </div>
+      </div>
+    </header>
+    
+    <div id="content">
+      <div id="toolGrid">
+        <!-- <div class="filterBox" id="kundeFilter">
+            <h2>Kunde</h2>
+            <input type="text" id="kundeSuchInput" placeholder="name/nummer">
+            <button type="button" onclick="getKunde(document.getElementById('kundeSuchInput').value)">Suchen</button>
+            <button type="button" onclick="addKunde()">Kunde anlegen</button>
+        </div>
+        <div class="filterBox" id="zimmerFilter">
+            <h2>Zimmer</h2>
+            <input type="text" id="zimmerSuchInput" placeholder="zimmernummer/kategorie/">
+            <button type="button" onclick="getZimmer(document.getElementById('zimmerSuchInput').value)">Suchen</button>
+        </div>
+        <div class="filterBox" id="buchungFilter">
+            <h2>Buchung</h2>
+            <input type="text" id="buchungSuchInput" placeholder="buchungsnummer/kundennummer">
+            <button type="button" onclick="getBuchung(document.getElementById('buchungSuchInput').value)">Suchen</button>
+            <button type="button" onclick="addBuchung()">Buchung anlegen</button>
+        </div>
+        <div class="filterBox" id="bewertungFilter">
+            <h2>Bewertung</h2>
+            <button type="button" onclick="getBewertungen(true)">Offene Bewertungen</button>
+            <button type="button" onclick="getBewertungen(false)">Alle Bewertungen</button>
+        </div> -->
+      </div>
+      <div id="dataGrid">
+      </div>
+    </div>
+    <footer>
+      <p>das ist der footer</p>
+    </footer>
+  </body>
+</html>

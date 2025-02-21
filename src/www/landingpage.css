@@ -1,0 +1,37 @@
+.content{
+    background-color: aqua;
+    margin-top: 170px;
+    min-height: 2000px;
+}
+.beschreibung{
+    background-color: burlywood;
+    height: fit-content;
+    margin: 5px;
+}
+#bewertungen>div{
+    background-color: lawngreen;
+    display: grid;
+    grid-template-columns: 100px 1fr 50px;
+    min-height: 50px;
+}
+.bildBewertung{
+    grid: 1 / 2;
+    background-color: red;
+    display: grid;
+}
+.profilbild{
+    justify-self: center;
+    align-self: center;
+    margin-bottom: 10px;
+}
+.textBewertung{
+    grid: 2 / 3;
+    background-color: orangered;
+}
+.scaleBewertung{
+    grid: 3 / 4;
+    background-color: orange;
+    display: grid;
+    grid-template-rows: 1fr 25px 25px 25px 25px 25px 1fr;
+    justify-items: center;
+}

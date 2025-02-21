@@ -1,0 +1,1030 @@
+const ArrayZimmer = [
+    {name: 'HansWurst', kategorie: 'Premium', betten: 'doppelbett', preis: '120€'},
+    {name: 'Elise', kategorie: 'Standard', betten: 'einzelbett', preis: '40€'},
+    {name: 'peter', kategorie: 'Luxus', betten: 'doppelbett', preis: '190€'},
+    {name: 'Wolf', kategorie: 'Standard', betten: 'einzelbett', preis: '60€'}
+]
+
+async function RequestPHPAsync(url, todo, err){
+    try{
+      const res = await fetch (url);
+      const data = await res.text();
+      todo(data);
+    }
+    catch{
+      err();
+    }
+  }
+
+function fetchZimmer(suchbegriff){
+    const url = "AdminSearch.php?req=Zimmer&search="+encodeURIComponent(suchbegriff);
+    RequestPHPAsync(url, (data)=>{
+        data.forEach(d => {
+            ArrayZimmer.push(new Zimmer(d.Name, d.Kategorie, d.Typ, d.Bild, d.Preis))
+        });
+    }, ()=>{})
+}
+
+const ArrayBuchungen = [
+    {
+        id: '1',
+        kunde: {vorname: "Hans",
+                nachname: "Wurst", 
+                strHausnummer: "Fleischeralle 9",
+                plz: '23487',
+                stadt: "Hackstadt",
+                geschlecht: "d",
+                gebdatum: new Date()},
+        zimmer: ArrayZimmer[3], 
+        buchungszeitraum: 3,
+        anreise: new Date(), 
+        abreise: new Date(),
+        bewertung: false 
+    },
+    {
+        id: '2',
+        kunde: {vorname: "Hans",
+                nachname: "Wurst", 
+                strHausnummer: "Fleischeralle 9",
+                plz: '23487',
+                stadt: "Hackstadt",
+                geschlecht: "d",
+                gebdatum: new Date()},
+        zimmer: ArrayZimmer[2], 
+        buchungszeitraum: 7,
+        anreise: new Date(), 
+        abreise: new Date(),
+        bewertung: false 
+    },
+    {
+        id: '3',
+        kunde: {vorname: "elli",
+                nachname: "Nachname", 
+                strHausnummer: "Blümchenweg 69",
+                plz: '23487',
+                stadt: "Hackstadt",
+                geschlecht: "weiblich",
+                gebdatum: new Date()},
+        zimmer: ArrayZimmer[1], 
+        buchungszeitraum: 1,
+        anreise: new Date(), 
+        abreise: new Date(),
+        bewertung: false  
+    }
+]
+
+const ArrayBewertungen = [
+    {
+        id: 'kl523',
+        kunde: {vorname: "Hans",
+                nachname: "Wurst", 
+                strHausnummer: "Fleischeralle 9",
+                plz: '23487',
+                stadt: "Hackstadt",
+                geschlecht: "d",
+                gebdatum: new Date()},
+        text: 'Bartwurstkeksemmeln sind geil, weil sie die perfekte Kombination aus den würzigen, herzhaften Aromen der Bratwurst und der weichen, fluffigen Textur eines frischen Brötchens bieten. Diese Köstlichkeit, die in Deutschland und darüber hinaus beliebt ist, ist nicht nur ein Geschmackserlebnis, sondern auch eine Hommage an die traditionelle deutsche Küche. Ob nun beim Frühstück, Mittagessen oder als Snack, die Bartwurstkeksemmeln sind ein Fest für den Gaumen und vereinen Einfachheit mit Genuss auf eine Weise, die sowohl satt als auch zufrieden macht.', 
+        sterne: 3,
+        freigegeben: false
+    },
+    {
+        id: 'gt123',
+        kunde: {vorname: "Hans",
+                nachname: "Wurst", 
+                strHausnummer: "Fleischeralle 9",
+                plz: '23487',
+                stadt: "Hackstadt",
+                geschlecht: "d",
+                gebdatum: new Date()},
+        text: 'naja a bissala arsch wars halt', 
+        sterne: 1,
+        freigegeben: true
+    },
+]
+
+const ArrayKunden = [
+    {
+        id: '00001',
+        vorname: "Hans",
+        nachname: "Wurst", 
+        strHausnummer: "Fleischeralle 9",
+        plz: '23487',
+        stadt: "Hackstadt",
+        geschlecht: "divers",
+        gebdatum: '23.11.1973'
+    },
+    {
+        id: '00002',
+        vorname: "elli",
+        nachname: "Nachname", 
+        strHausnummer: "Blümchenweg 69",
+        plz: '23487',
+        stadt: "Hackstadt",
+        geschlecht: "weiblich",
+        gebdatum: '16.08.1999'
+    },
+    {
+        id: '00003',
+        vorname: "mark",
+        nachname: "dummi", 
+        strHausnummer: "Weg 9",
+        plz: '23487',
+        stadt: "Hackstadt",
+        geschlecht: "weiblich",
+        gebdatum: '06.01.1999'
+    }
+]
+
+let loggedInUser
+let loggedIn = false
+
+const ArrayNutzer = [
+    {
+        id: '1k2j3',
+        vorname: 'joh',
+        nachname: 'blub',
+        rolle: 'admin'
+    },
+    {
+        id: '5j3l2',
+        vorname: 'lyssi',
+        nachname: 'blub',
+        rolle: 'admin'
+    },
+    {
+        id: '2k3g5',
+        vorname: 'jordi',
+        nachname: 'blub',
+        rolle: 'mitarbeiter'
+    },
+]
+
+document.addEventListener('DOMContentLoaded', function() {
+    if(loggedIn === false){
+        firstVisit()
+        const popup = document.getElementById('popup')
+        popup.style.display = 'block'
+        document.getElementById('LoginForm').addEventListener (
+            "submit", 
+            function (evt) {
+                for(let i = 0; i < ArrayNutzer.length; i++){
+                    if(evt.target[0].value === ArrayNutzer[i].vorname && evt.target[1].value === ArrayNutzer[i].nachname){
+                        loggedInUser = ArrayNutzer[i]
+                        closeLogin()
+                        loggedIn = true
+                        break
+                    }
+                    evt.preventDefault();
+                }
+        })
+    }
+    
+});
+
+function firstVisit(){
+    
+    const headerbutton = document.getElementById('headerButton')
+    headerbutton.style.display = 'none'
+
+    const header = document.getElementsByTagName('header')
+
+    const loginContainerDiv = document.createElement('div')
+    loginContainerDiv.id = 'popup'
+    loginContainerDiv.className = 'popup'
+
+    const loginContentDiv = document.createElement('div')
+    loginContentDiv.className = 'popup-content'
+
+    const form = document.createElement('form')
+    form.id = 'LoginForm'
+
+    const loginDiv = document.createElement('div')
+    loginDiv.id = 'divLogin'
+
+    const userLabel = document.createElement('label')
+    userLabel.setAttribute('for', 'username')
+    userLabel.textContent = 'Benutzername: '
+
+    const userInput = document.createElement('input')
+    userInput.type = 'text'
+    userInput.id = 'username'
+    userInput.name = 'username'
+    userInput.required = true
+
+    const passwordLabel = document.createElement('label')
+    passwordLabel.setAttribute('for', 'password')
+    passwordLabel.textContent = 'Passwort: '
+
+    const passwordInput = document.createElement('input')
+    passwordInput.type = 'password'
+    passwordInput.id = 'password'
+    passwordInput.name = 'password'
+    passwordInput.required = true
+
+    const button = document.createElement('button')
+    button.type = 'submit'
+    button.textContent = 'Login'
+
+    loginDiv.appendChild(userLabel)
+    loginDiv.appendChild(userInput)
+    loginDiv.appendChild(passwordLabel)
+    loginDiv.appendChild(passwordInput)
+    loginDiv.appendChild(button)
+
+    form.appendChild(loginDiv)
+
+    loginContentDiv.appendChild(form)
+
+    loginContainerDiv.appendChild(loginContentDiv)
+
+    header[0].insertAdjacentElement("afterend",loginContainerDiv)
+}
+
+function closeLogin(){
+    const body = document.getElementsByTagName('body')
+    body[0].removeChild(document.getElementById('popup'))
+    bluidToolgrid()
+
+    const headerbutton = document.getElementById('headerButton')
+    headerbutton.style.display = 'flex'
+}
+
+function getKunde(suchbegriff){
+    let anzuzeigendeKunden
+    if(suchbegriff != ''){
+        anzuzeigendeKunden = ArrayKunden.filter(kunde => kunde.id === suchbegriff || kunde.nachname === suchbegriff)
+    }else{
+        anzuzeigendeKunden = ArrayKunden
+    }
+    clearDataGrid()
+    const dataGrid = document.getElementById('dataGrid')
+
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+
+    ['Kundennummer', 'Name', 'Geburtsdatum', ''].forEach((headerText) => {
+        const th = document.createElement('th');
+        th.textContent = headerText;
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    anzuzeigendeKunden.forEach(kunde => {
+        const row = document.createElement('tr');
+        const cellID = document.createElement('td');
+        cellID.textContent = kunde.id;
+        row.appendChild(cellID);
+        const cellName = document.createElement('td');
+        cellName.textContent = kunde.nachname + ', ' + kunde.vorname;
+        row.appendChild(cellName);
+        const cellGebDatum = document.createElement('td');
+        cellGebDatum.textContent = kunde.gebdatum;
+        row.appendChild(cellGebDatum);
+        const button = document.createElement('button')
+        button.id = kunde.id
+        button.textContent = 'Bearbeiten'
+        button.setAttribute('onclick', `changeKundenProfil('${kunde.id}')`)
+        row.appendChild(button)
+
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    
+    dataGrid.appendChild(table);
+}
+
+function changeKundenProfil(idKunde){
+    console.log(idKunde)
+    clearDataGrid()
+    let zuändernderKunde = ArrayKunden.filter(kunde => kunde.id === idKunde)
+    console.log(zuändernderKunde[0])
+    const dataGrid = document.getElementById('dataGrid')
+
+    const form = document.createElement('form');
+    form.id = 'profileForm';
+
+    const fields = [
+        { label: 'Vorname:', id: 'firstName', type: 'text', value: zuändernderKunde[0].vorname},
+        { label: 'Nachname:', id: 'lastName', type: 'text', value: zuändernderKunde[0].nachname},
+        { label: 'Straße & Hausnummer:', id: 'street', type: 'text', value: zuändernderKunde[0].strHausnummer},
+        { label: 'PLZ:', id: 'zipCode', type: 'text', pattern: '[0-9]*', value: zuändernderKunde[0].plz},
+        { label: 'Stadt:', id: 'city', type: 'text', value: zuändernderKunde[0].stadt}
+    ];
+
+    fields.forEach(field => {
+        const label = document.createElement('label');
+        label.setAttribute('for', field.id);
+        label.textContent = field.label;
+        form.appendChild(label);
+
+        const input = document.createElement('input');
+        input.type = field.type;
+        input.id = field.id;
+        input.name = field.id;
+        input.value = field.value
+        input.required = true;
+        if (field.pattern) input.pattern = field.pattern;
+        form.appendChild(input);
+    });
+
+    // Geschlecht
+    const genderLabel = document.createElement('label');
+    genderLabel.setAttribute('for', 'gender');
+    genderLabel.textContent = 'Geschlecht:';
+    form.appendChild(genderLabel);
+
+    const genderSelect = document.createElement('select');
+    genderSelect.id = 'gender';
+    genderSelect.name = 'gender';
+    genderSelect.required = true;
+   
+    const optionElement = document.createElement('option');
+    optionElement.value = 'keine Angabe';
+    optionElement.textContent = 'keine Angabe';
+    genderSelect.appendChild(optionElement);
+    const optionElementM = document.createElement('option');
+    optionElementM.value = 'männlich';
+    optionElementM.textContent = 'männlich';
+    genderSelect.appendChild(optionElementM);
+    const optionElementW = document.createElement('option');
+    optionElementW.value = 'weiblich';
+    optionElementW.textContent = 'weiblich';
+    genderSelect.appendChild(optionElementW);
+    const optionElementD = document.createElement('option');
+    optionElementD.value = 'divers';
+    optionElementD.textContent = 'divers';
+    genderSelect.appendChild(optionElementD);
+
+    switch (zuändernderKunde[0].geschlecht) {
+        case "männlich":
+            optionElementM.defaultSelected = true
+            break;
+        case "weiblich":
+            optionElementW.defaultSelected = true
+            break;
+        case "divers":
+            optionElementD.defaultSelected = true
+            break;
+        default:
+            //defaultcase einfügen
+    }
+
+    form.appendChild(genderSelect);
+
+    // Geburtsdatum
+    const birthDateLabel = document.createElement('label');
+    birthDateLabel.setAttribute('for', 'birthDate');
+    birthDateLabel.textContent = 'Geburtsdatum:';
+    form.appendChild(birthDateLabel);
+
+    const birthDateInput = document.createElement('input');
+    birthDateInput.type = 'date';
+    birthDateInput.id = 'birthDate';
+    birthDateInput.name = 'birthDate';
+    birthDateInput.required = true;
+    birthDateInput.value = formatDateForInput(zuändernderKunde[0].gebdatum)
+    form.appendChild(birthDateInput);
+
+    // Submit Button
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Speichern';
+    form.appendChild(submitButton);
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const vorname = this[0].value
+        const nachname = this[1].value
+        const strHausnummer = this[2].value
+        const plz = this[3].value
+        const stadt = this[4].value
+        const geschlecht = this[5].value
+        const gebdatum = this[6].value
+
+        //Hier die Speicherfunktion zur Datenbank
+
+        alert('Profil erfolgreich angelegt!');
+        clearDataGrid()
+    });
+
+    dataGrid.appendChild(form);
+}
+
+function formatDateForInput(date) {
+    const parts = date.split('.');
+    let day = parseInt(parts[0], 10); 
+    let month = parseInt(parts[1], 10); 
+    let year = parseInt(parts[2], 10); 
+
+    if(day/10 < 1){
+        day = '0' + day
+    }
+    if(month/10 < 1){
+        month = '0' + month
+    }
+    // const gebdate = new Date(year, month, day);
+
+    // year = gebdate.getFullYear();
+    // month = String(gebdate.getMonth() + 1).padStart(2, '0'); // Monat ist 0-basiert, daher +1
+    // day = String(gebdate.getDate()).padStart(2, '0');
+    console.log(`${year}-${month}-${day}`)
+    return `${year}-${month}-${day}`;
+}
+
+function addKunde(){
+    clearDataGrid()
+    const dataGrid = document.getElementById('dataGrid')
+
+    const form = document.createElement('form');
+    form.id = 'profileForm';
+
+    const fields = [
+        { label: 'Vorname:', id: 'firstName', type: 'text'},
+        { label: 'Nachname:', id: 'lastName', type: 'text'},
+        { label: 'Straße & Hausnummer:', id: 'street', type: 'text'},
+        { label: 'PLZ:', id: 'zipCode', type: 'text', pattern: '[0-9]*'},
+        { label: 'Stadt:', id: 'city', type: 'text'}
+    ];
+
+    fields.forEach(field => {
+        const label = document.createElement('label');
+        label.setAttribute('for', field.id);
+        label.textContent = field.label;
+        form.appendChild(label);
+
+        const input = document.createElement('input');
+        input.type = field.type;
+        input.id = field.id;
+        input.name = field.id;
+        input.required = true;
+        if (field.pattern) input.pattern = field.pattern;
+        form.appendChild(input);
+    });
+
+    // Geschlecht
+    const genderLabel = document.createElement('label');
+    genderLabel.setAttribute('for', 'gender');
+    genderLabel.textContent = 'Geschlecht:';
+    form.appendChild(genderLabel);
+
+    const genderSelect = document.createElement('select');
+    genderSelect.id = 'gender';
+    genderSelect.name = 'gender';
+    genderSelect.required = true;
+   
+    const optionElement = document.createElement('option');
+    optionElement.value = 'keine Angabe';
+    optionElement.textContent = 'keine Angabe';
+    genderSelect.appendChild(optionElement);
+    const optionElementM = document.createElement('option');
+    optionElementM.value = 'männlich';
+    optionElementM.textContent = 'männlich';
+    genderSelect.appendChild(optionElementM);
+    const optionElementW = document.createElement('option');
+    optionElementW.value = 'weiblich';
+    optionElementW.textContent = 'weiblich';
+    genderSelect.appendChild(optionElementW);
+    const optionElementD = document.createElement('option');
+    optionElementD.value = 'divers';
+    optionElementD.textContent = 'divers';
+    genderSelect.appendChild(optionElementD);
+
+    form.appendChild(genderSelect);
+
+    // Geburtsdatum
+    const birthDateLabel = document.createElement('label');
+    birthDateLabel.setAttribute('for', 'birthDate');
+    birthDateLabel.textContent = 'Geburtsdatum:';
+    form.appendChild(birthDateLabel);
+
+    const birthDateInput = document.createElement('input');
+    birthDateInput.type = 'date';
+    birthDateInput.id = 'birthDate';
+    birthDateInput.name = 'birthDate';
+    birthDateInput.required = true;
+    form.appendChild(birthDateInput);
+
+    // Submit Button
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Speichern';
+    form.appendChild(submitButton);
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const vorname = this[0].value
+        const nachname = this[1].value
+        const strHausnummer = this[2].value
+        const plz = this[3].value
+        const stadt = this[4].value
+        const geschlecht = this[5].value
+        const gebdatum = this[6].value
+
+        //Hier die Speicherfunktion zur Datenbank
+
+        alert('Profil erfolgreich angelegt!');
+        clearDataGrid()
+    });
+
+    dataGrid.appendChild(form);
+    
+}
+
+function getZimmer(suchbegriff){
+
+    fetchZimmer(suchbegriff)
+    console.log(ArrayZimmer)
+
+    let zuZeigendeZimmer
+    if(suchbegriff === undefined){
+        zuZeigendeZimmer = ArrayZimmer
+    }else{
+        zuZeigendeZimmer = ArrayZimmer.filter(zimmer => zimmer.name.includes(suchbegriff) || 
+                                                        zimmer.kategorie.includes(suchbegriff) ||
+                                                        zimmer.betten.includes(suchbegriff) ||
+                                                        zimmer.preis.includes(suchbegriff))                       
+    }
+
+    clearDataGrid()
+    const dataGrid = document.getElementById('dataGrid')
+
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    
+    // Objekt, das den Sortierungszustand für jede Spalte speichert
+    const sortStates = {};
+
+    ['Name', 'Kategorie', 'Betten', 'Preis'].forEach((headerText, index) => {
+        const th = document.createElement('th');
+        th.textContent = headerText;
+        
+        const sortIndicator = document.createElement('span');
+        sortIndicator.className = 'sort-indicator sort-none';
+        th.appendChild(sortIndicator);
+
+        th.addEventListener('click', () => {
+            sortStates[headerText.toLowerCase()] = (sortStates[headerText.toLowerCase()] || 0) + 1;
+            if (sortStates[headerText.toLowerCase()] > 2) {
+                sortStates[headerText.toLowerCase()] = 0;  // Zurücksetzen nach 2 Klicks
+            }
+            sortTable(headerText.toLowerCase(), index, sortStates[headerText.toLowerCase()]);
+
+            // Update des Sortierungsindikators
+            const indicators = document.querySelectorAll('.sort-indicator');
+            indicators.forEach(ind => {
+                ind.className = 'sort-indicator sort-none';
+            });
+            if (sortStates[headerText.toLowerCase()] === 1) {
+                sortIndicator.className = 'sort-indicator sort-desc';
+            } else if (sortStates[headerText.toLowerCase()] === 2) {
+                sortIndicator.className = 'sort-indicator sort-asc';
+            }
+        });
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    zuZeigendeZimmer.forEach(rowData => {
+        const row = document.createElement('tr');
+        Object.values(rowData).forEach(cellData => {
+            const cell = document.createElement('td');
+            cell.textContent = cellData;
+            row.appendChild(cell);
+        });
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+
+    // Sortierungsfunktion mit Sortierungszustand
+    function sortTable(column, columnIndex, sortState) {
+        let rows = Array.from(tbody.getElementsByTagName('tr'));
+        let sortedRows = rows.sort((a, b) => {
+            let aCol = a.getElementsByTagName('td')[columnIndex].textContent;
+            let bCol = b.getElementsByTagName('td')[columnIndex].textContent;
+
+            if (column === 'preis') {
+                aCol = parseFloat(aCol.replace('€', ''));
+                bCol = parseFloat(bCol.replace('€', ''));
+            }
+
+            if (sortState === 1) {  // Absteigend
+                return bCol > aCol ? 1 : -1;
+            } else if (sortState === 2) {  // Aufsteigend
+                return aCol > bCol ? 1 : -1;
+            } else {  // Sortierung zurücksetzen (Originalreihenfolge)
+                return ArrayZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: aCol, kategorie: b.getElementsByTagName('td')[1].textContent, betten: b.getElementsByTagName('td')[2].textContent, preis: b.getElementsByTagName('td')[3].textContent})))) - 
+                       ArrayZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: bCol, kategorie: a.getElementsByTagName('td')[1].textContent, betten: a.getElementsByTagName('td')[2].textContent, preis: a.getElementsByTagName('td')[3].textContent})))) 
+            }
+        });
+        while (tbody.firstChild) {
+            tbody.removeChild(tbody.firstChild);
+        }
+        sortedRows.forEach(row => {
+            tbody.appendChild(row);
+        });
+    }
+        // Füge die Tabelle zum Body hinzu
+        dataGrid.appendChild(table);
+
+    // }
+}
+
+function getBuchung(suchbegriff){
+    clearDataGrid()
+
+    let anzuzeigendeBuchungen 
+    if(suchbegriff === ""){
+        anzuzeigendeBuchungen = ArrayBuchungen
+    }else{
+        anzuzeigendeBuchungen = ArrayBuchungen.filter(buchung => 
+            (suchbegriff.includes(buchung.kunde.nachname) && suchbegriff.includes(buchung.kunde.vorname)) || buchung.id === suchbegriff 
+        )
+    }
+
+    const dataGrid = document.getElementById('dataGrid')
+
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+
+    ['ID', 'Kunde', 'Zimmer', 'Preis', 'Anreise', 'Abreise'].forEach((headerText) => {
+        const th = document.createElement('th');
+        th.textContent = headerText;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    anzuzeigendeBuchungen.forEach(rowData => {
+        const row = document.createElement('tr');
+
+        const cellId = document.createElement('td')
+        cellId.textContent = rowData.id;
+        row.appendChild(cellId);
+
+        const cellKunde = document.createElement('td')
+        cellKunde.textContent = rowData.kunde.nachname + ', ' + rowData.kunde.vorname;
+        row.appendChild(cellKunde);
+
+        const cellZimmer = document.createElement('td')
+        cellZimmer.textContent = rowData.zimmer.kategorie + ': ' + rowData.zimmer.name;
+        row.appendChild(cellZimmer);
+
+        const cellPreis = document.createElement('td')
+        let preis = rowData.buchungszeitraum * parseInt(rowData.zimmer.preis.replace('€', ''))
+        cellPreis.textContent = preis
+        row.appendChild(cellPreis);
+
+        const cellAnreise = document.createElement('td')
+        let date = rowData.anreise.getDate().toString().padStart(2, '0') + '.' + (rowData.anreise.getMonth() + 1).toString().padStart(2, '0') + '.' + rowData.anreise.getFullYear()
+        cellAnreise.textContent = date
+        row.appendChild(cellAnreise);
+
+        const cellAbreise = document.createElement('td')
+        date = rowData.abreise.getDate().toString().padStart(2, '0') + '.' + (rowData.abreise.getMonth() + 1).toString().padStart(2, '0') + '.' + rowData.abreise.getFullYear()
+        cellAbreise.textContent = date
+        row.appendChild(cellAbreise);
+
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+
+    // Füge die Tabelle zum Body hinzu
+    dataGrid.appendChild(table);
+
+}
+
+function addBuchung(){
+    clearDataGrid()
+    const dataGrid = document.getElementById('dataGrid')
+
+    const form = document.createElement('form');
+    form.id = 'buchungForm';
+
+    const fields = [
+        { label: 'Kunde Vorname:', id: 'firstName', type: 'text'},
+        { label: 'Kunde Nachname:', id: 'lastName', type: 'text'}
+    ];
+
+    fields.forEach(field => {
+        const label = document.createElement('label');
+        label.setAttribute('for', field.id);
+        label.textContent = field.label;
+        form.appendChild(label);
+
+        const input = document.createElement('input');
+        input.type = field.type;
+        input.id = field.id;
+        input.name = field.id;
+        input.required = true;
+        if (field.pattern) input.pattern = field.pattern;
+        form.appendChild(input);
+    });
+
+    // Geschlecht
+    const zimmerLabel = document.createElement('label');
+    zimmerLabel.setAttribute('for', 'zimmer');
+    zimmerLabel.textContent = 'Zimmer:';
+    form.appendChild(zimmerLabel);
+
+    const zimmerSelect = document.createElement('select');
+    zimmerSelect.id = 'zimmer';
+    zimmerSelect.name = 'zimmer';
+    zimmerSelect.required = true;
+   
+    ArrayZimmer.forEach(zimmer =>{
+        const optionZimmer = document.createElement('option');
+        optionZimmer.value = zimmer.name;
+        optionZimmer.textContent = zimmer.kategorie + ': ' + zimmer.name;
+        zimmerSelect.appendChild(optionZimmer);
+    })
+
+    form.appendChild(zimmerSelect);
+
+    // Anreisedatum
+    const anreisedatumLabel = document.createElement('label');
+    anreisedatumLabel.setAttribute('for', 'anreisedatum');
+    anreisedatumLabel.textContent = 'anreisedatum:';
+    form.appendChild(anreisedatumLabel);
+
+    const anreisedatumInput = document.createElement('input');
+    anreisedatumInput.type = 'date';
+    anreisedatumInput.id = 'anreiseDate';
+    anreisedatumInput.name = 'anreiseDate';
+    anreisedatumInput.required = true;
+    form.appendChild(anreisedatumInput);
+
+    // Anreisedatum
+    const abreisedatumLabel = document.createElement('label');
+    abreisedatumLabel.setAttribute('for', 'abreisedatum');
+    abreisedatumLabel.textContent = 'abreisedatum:';
+    form.appendChild(abreisedatumLabel);
+
+    const abreisedatumInput = document.createElement('input');
+    abreisedatumInput.type = 'date';
+    abreisedatumInput.id = 'abreiseDate';
+    abreisedatumInput.name = 'abreiseDate';
+    abreisedatumInput.required = true;
+    form.appendChild(abreisedatumInput);
+
+    // Submit Button
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = 'erstellen der Buchung';
+    form.appendChild(submitButton);
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        //Hier die Speicherfunktion zur Datenbank
+
+        alert('Buchung erfolgreich angelegt!');
+        clearDataGrid()
+    });
+
+    dataGrid.appendChild(form);
+}
+
+function getBewertungen(offene){
+    let anzuzeigendeBewertungen
+    if(offene === true){
+        anzuzeigendeBewertungen = ArrayBewertungen.filter(bewertung => bewertung.freigegeben === false)
+    }else{
+        anzuzeigendeBewertungen = ArrayBewertungen
+    }
+
+    clearDataGrid()
+    const dataGrid = document.getElementById('dataGrid')
+
+    anzuzeigendeBewertungen.forEach(bewertung => {
+        const bewertungsDiv = document.createElement('div')
+        bewertungsDiv.className = 'bewertungContainer'
+        bewertungsDiv.style.width = '90%'
+
+        const ersteReihe = document.createElement('div');
+        ersteReihe.className = 'ersteReihe';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = bewertung.kunde.nachname + ', ' + bewertung.kunde.vorname;
+        nameSpan.className = 'nameSpan';
+
+        const checkboxDiv = document.createElement('div');
+        checkboxDiv.className = 'checkboxContainer';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'checkboxInput';
+        checkbox.checked = bewertung.freigegeben
+        const checkboxLabel = document.createElement('label');
+        checkboxLabel.id = bewertung.id;
+        checkboxLabel.textContent = 'Freigeben';
+        checkboxLabel.className = 'checkboxSpan';
+        checkboxLabel.setAttribute('onclick', 'releaseBewertung(event)')
+
+        checkboxDiv.appendChild(checkbox);
+        checkboxDiv.appendChild(checkboxLabel);
+        
+        const sterneSpan = document.createElement('span');
+        sterneSpan.textContent = bewertung.sterne + ' von 5 Sternen'
+        sterneSpan.className = 'sterneSpan';
+
+        ersteReihe.appendChild(nameSpan);
+        ersteReihe.appendChild(checkboxDiv);
+        ersteReihe.appendChild(sterneSpan);
+
+        const zweiteReihe = document.createElement('div');
+        zweiteReihe.className = 'zweiteReihe';
+
+        const textarea = document.createElement('textarea');
+        textarea.className = 'textBewertung';
+        textarea.readOnly = true;
+        textarea.value = bewertung.text;
+
+        zweiteReihe.appendChild(textarea);
+
+        bewertungsDiv.appendChild(ersteReihe);
+        bewertungsDiv.appendChild(zweiteReihe);
+
+        dataGrid.appendChild(bewertungsDiv)
+    })
+    adjustTextareaHeight()
+}
+
+function adjustTextareaHeight() {
+    const textareas = document.getElementsByClassName('textBewertung')
+    for(let i = 0; i < textareas.length; i++){
+        textareas[i].style.height = 'auto'; 
+        textareas[i].style.height = (textareas[i].scrollHeight + 2) + 'px';
+    }
+}
+
+function releaseBewertung(event){
+    let idBewertung = event.target.id
+    let checkbox = event.target.previousSibling
+    checkbox.checked = !checkbox.checked
+
+    //Hier einfügen, dass die Freigabe geändert wurde, sodass es auf der frontpage angezeigt wird
+    //changeFreigabestatus(idBewertung, checkbox.checked)
+    
+}
+
+function clearDataGrid(){
+    const dataGrid = document.getElementById('dataGrid')
+    let children = dataGrid.children.length
+    while(children > 0){
+        dataGrid.removeChild(dataGrid.children[0])
+        children = dataGrid.children.length
+    }
+}
+
+function bluidToolgrid(){
+    const toolGrid = document.getElementById('toolGrid') 
+
+    if(loggedInUser.rolle === 'admin'){
+        toolGrid.style.gridTemplateColumns = '1fr 1fr 1fr 1fr'
+    }else{
+        toolGrid.style.gridTemplateColumns = '1fr 1fr 1fr'
+    }
+
+
+    const filterBoxKundeDiv = document.createElement('div')
+    filterBoxKundeDiv.className = 'filterBox'
+    filterBoxKundeDiv.id = 'kundeFilter'
+
+    const kundeH2 = document.createElement('h2')
+    kundeH2.textContent = 'Kunde'
+
+    const kundeInput = document.createElement('input')
+    kundeInput.type = 'text'
+    kundeInput.id = 'kundeSuchInput'
+    kundeInput.placeholder = 'Nachnahme/Kundennummer'
+
+    const suchKundeButton = document.createElement('button')
+    suchKundeButton.type = 'button'
+    suchKundeButton.setAttribute('onclick', `getKunde(document.getElementById('kundeSuchInput').value)`)
+    suchKundeButton.textContent = 'Suchen'
+
+    const addKundeButton = document.createElement('button')
+    addKundeButton.type = 'button'
+    addKundeButton.setAttribute('onclick', `addKunde()`)
+    addKundeButton.textContent = 'Kunde anlegen'
+
+    filterBoxKundeDiv.appendChild(kundeH2)
+    filterBoxKundeDiv.appendChild(kundeInput)
+    filterBoxKundeDiv.appendChild(suchKundeButton)
+    filterBoxKundeDiv.appendChild(addKundeButton)
+
+    toolGrid.appendChild(filterBoxKundeDiv)
+
+    const filterBoxZimmerDiv = document.createElement('div')
+    filterBoxZimmerDiv.className = 'filterBox'
+    filterBoxZimmerDiv.id = 'zimmerFilter'
+
+    const zimmerH2 = document.createElement('h2')
+    zimmerH2.textContent = 'Zimmer'
+
+    const zimmerInput = document.createElement('input')
+    zimmerInput.type = 'text'
+    zimmerInput.id = 'zimmerSuchInput'
+    zimmerInput.placeholder = 'Zimmernummer/Kategorie/...'
+
+    const suchZimmerButton = document.createElement('button')
+    suchZimmerButton.type = 'button'
+    suchZimmerButton.setAttribute('onclick', `getZimmer(document.getElementById('zimmerSuchInput').value)`)
+    suchZimmerButton.textContent = 'Suchen'
+
+    filterBoxZimmerDiv.appendChild(zimmerH2)
+    filterBoxZimmerDiv.appendChild(zimmerInput)
+    filterBoxZimmerDiv.appendChild(suchZimmerButton)
+
+    toolGrid.appendChild(filterBoxZimmerDiv)
+
+    const filterBoxBuchungDiv = document.createElement('div')
+    filterBoxBuchungDiv.className = 'filterBox'
+    filterBoxBuchungDiv.id = 'buchungFilter'
+
+    const BuchungH2 = document.createElement('h2')
+    BuchungH2.textContent = 'Buchung'
+
+    const buchungInput = document.createElement('input')
+    buchungInput.type = 'text'
+    buchungInput.id = 'buchungSuchInput'
+    buchungInput.placeholder = 'Buchungsnummer/Kundennummer'
+
+    const suchBuchungButton = document.createElement('button')
+    suchBuchungButton.type = 'button'
+    suchBuchungButton.setAttribute('onclick', `getBuchung(document.getElementById('buchungSuchInput').value)`)
+    suchBuchungButton.textContent = 'Suchen'
+
+    const addBuchungButton = document.createElement('button')
+    addBuchungButton.type = 'button'
+    addBuchungButton.setAttribute('onclick', `addBuchung()`)
+    addBuchungButton.textContent = 'Buchung anlegen'
+
+    filterBoxBuchungDiv.appendChild(BuchungH2)
+    filterBoxBuchungDiv.appendChild(buchungInput)
+    filterBoxBuchungDiv.appendChild(suchBuchungButton)
+    filterBoxBuchungDiv.appendChild(addBuchungButton)
+
+    toolGrid.appendChild(filterBoxBuchungDiv)
+
+    if(loggedInUser.rolle === 'admin'){
+        const filterBoxBewertungDiv = document.createElement('div')
+        filterBoxBewertungDiv.className = 'filterBox'
+        filterBoxBewertungDiv.id = 'bewertungFilter'
+
+        const BewertungH2 = document.createElement('h2')
+        BewertungH2.textContent = 'Bewertung'
+
+        const suchOffeneBewertungButton = document.createElement('button')
+        suchOffeneBewertungButton.type = 'button'
+        suchOffeneBewertungButton.setAttribute('onclick', 'getBewertungen(true)')
+        suchOffeneBewertungButton.textContent = 'Offene Bewertungen'
+
+        const suchAlleBewertungButton = document.createElement('button')
+        suchAlleBewertungButton.type = 'button'
+        suchAlleBewertungButton.setAttribute('onclick', 'getBewertungen(false)')
+        suchAlleBewertungButton.textContent = 'Alle Bewertungen'
+
+        filterBoxBewertungDiv.appendChild(BewertungH2)
+        filterBoxBewertungDiv.appendChild(suchOffeneBewertungButton)
+        filterBoxBewertungDiv.appendChild(suchAlleBewertungButton)
+
+        toolGrid.appendChild(filterBoxBewertungDiv)
+    }else{
+    }
+
+}
+
+function logout(){
+    const toolGrid = document.getElementById('toolGrid')
+    let länge = toolGrid.children.length
+
+    for(let i = 0;i < länge; i ++){
+        toolGrid.removeChild(toolGrid.children[0])
+    }
+    clearDataGrid()
+    loggedIn = false
+    firstVisit()
+    const headerbutton = document.getElementById('headerButton')
+    headerbutton.style.display = 'none'
+    const popup = document.getElementById('popup')
+        popup.style.display = 'block'
+        document.getElementById('LoginForm').addEventListener (
+            "submit", 
+            function (evt) {
+                for(let i = 0; i < ArrayNutzer.length; i++){
+                    if(evt.target[0].value === ArrayNutzer[i].vorname && evt.target[1].value === ArrayNutzer[i].nachname){
+                        loggedInUser = ArrayNutzer[i]
+                        closeLogin()
+                        loggedIn = true
+                        break
+                    }
+                    evt.preventDefault();
+                }
+        })
+}

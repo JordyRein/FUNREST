@@ -1,0 +1,46 @@
+.profilContainer {
+    width: 90%;
+    height: 750px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+}
+
+.profilContainer h1 {
+    text-align: center;
+    color: #333;
+}
+
+.profilContainer form {
+    display: flex;
+    flex-direction: column;
+}
+
+.profilContainer label {
+    margin-top: 10px;
+}
+
+.profilContainer input, .profilContainer textarea {
+    margin-top: 5px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.profilContainer button {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.profilContainer button:hover {
+    background-color: #45a049;
+}

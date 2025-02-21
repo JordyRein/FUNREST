@@ -9,7 +9,7 @@ create procedure mssp_SearchRoom(
 )
 begin
 
-select k.Name, t.Name, z.Bild, k.Preis*t.PreisScale from Zimmer z
+select k.Name as Kategorie, t.Name as Typ, z.Bild as Bild, k.Preis*t.PreisScale as Preis from Zimmer z
 join Kategorie k on z.KategorieId=k.Id
 join Typ t on t.Id=z.Typ
 where z.KategorieId=cat and z.Typ=typ or

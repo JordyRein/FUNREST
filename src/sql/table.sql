@@ -14,6 +14,7 @@ drop table if exists LoginDaten;
 
 create table Zimmer(
   Id int auto_increment not null primary key,
+  Name nvarchar(50),
   KategorieId int,
   Typ int,
   Bild nvarchar(255)
@@ -111,7 +112,7 @@ values (N'Standard', 100),
        (N'Luxus', 500);
 
 insert into Typ(Name, PreisScale)
-values (N'Einzel', 1),
-       (N'Doppel', 1.5);
+values (N'Einzelzimmer', 1),
+       (N'Doppelzimmer', 1.5);
 
 
