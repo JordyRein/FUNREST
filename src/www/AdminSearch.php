@@ -46,9 +46,6 @@ switch($_GET["req"]){
     break;
 
   case "Zimmer":
-    //$room = new Room("1422", "Fancy", "Very Good", 2000, 1.5);
-    //echo json_encode($room);
-
     $s=urldecode($_GET["search"]);
 
     $conn=ConnectMySQL();
@@ -61,28 +58,56 @@ switch($_GET["req"]){
     $res = $conn->query($query);
 
     $i=0;
-    $list_cust=array();
+    $list_room=array();
     foreach ($res as $row){
-      array_push($list_cust,new Zimmer(
+      array_push($list_room,new Room(
           $row['Name'],
           $row['Kategorie'],
-          $row['Betten'],
+          $row['Typ'],
           $row['Bild'],
-          $row['Preis'])
+          $row['Preis']
       );
 
       ++$i;
     }
     CloseMySQL($conn);
 
-    echo json_encode($list_cust);
+    echo json_encode($list_room);
     break;
 
   case "Buchung":
-    //$buch = new Reservation("23", "1422", "June", "Jule", "Jule", "Monday");
-    //echo json_encode($buch);
+    $s=urldecode($_GET["search"]);
 
-    echo urldecode($_GET["search"]);
+    $conn=ConnectMySQL();
+    if(!$conn instanceof mysqli){
+      echo json_encode("Something went wrong with database connection\n");
+      break;
+    }
+
+    $query = "call mssp_SearchBooking(".$s.")";
+    $res = $conn->query($query);
+
+    $i=0;
+    $list_reserve=array();
+    foreach ($res as $row){
+      array_push($list_reserve,new Reservation(
+          $row['BuchungId'],
+          $row['KundeVorname'],
+          $row['KundeNachname'],
+          $row['ZimmerName'],
+          $row['BuchungZeitRaum'],
+          $row['Anreise'],
+          $row['Abreise'],
+          $row['Preis'],
+          $row['PrueferVorname'],
+          $row['PrueferNachname']
+      );
+
+      ++$i;
+    }
+    CloseMySQL($conn);
+
+    echo json_encode($list_reserve);
     break;
 
   default:

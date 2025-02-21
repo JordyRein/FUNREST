@@ -1,20 +1,28 @@
 <?php
 
 class Reservation{
-  public $CustomerId;
-  public $RoomId;
-  public $StartDate;
-  public $EndDate;
-  public $Arrival;
-  public $Departure;
+  public $BuchungId;
+  public $KundeVorname;
+  public $KundeNachname;
+  public $ZimmerName;
+  public $BuchungZeitRaum;
+  public $Anreise;
+  public $Abreise;
+  public $Preis;
+  public $MAVorname;
+  public $MANachname;
 
-  function __construct($id, $rid, $start, $end, $arr, $depart){
-    $this->CustomerId=$id;
-    $this->RoomId=$rid;
-    $this->StartDate=$start;
-    $this->EndDate=$end;
-    $this->Arrival=$arr;
-    $this->Departure=$depart;
+  function __construct($id, $kv, $kn, $zn, $bzr, $anr, $abr, $p, $mav, $man){
+    $this->BuchungId=$id;
+    $this->KundeVorname=$kv;
+    $this->KundeNachname=$kn;
+    $this->ZimmerName=$zn;
+    $this->BuchungZeitRaum=$bzr;
+    $this->Anreise=$anr;
+    $this->Abreise=$abr;
+    $this->Preis=$p;
+    $this->MAVorname=$mav;
+    $this->MANachname=$man;
   }
 }
 

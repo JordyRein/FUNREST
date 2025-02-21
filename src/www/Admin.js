@@ -158,6 +158,8 @@ newReserveButton.onclick=()=>{
 
 function SubmitNewReservation(){
   var fd = new FormData(infotable);
+  var r = new Reservation();
+  console.log(JSON.stringify(fd));
 
   RequestPHP("POST", "AdminDataSubmit.php?search=Buchung",
       (data)=>{
@@ -165,5 +167,5 @@ function SubmitNewReservation(){
       },
       ()=>{
       },
-      fd);
+      JSON.stringify(fd));
 }

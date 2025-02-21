@@ -66,6 +66,7 @@ create table Bewertung(
   Id int auto_increment not null primary key,
   KundenID int,
   MitarbeiterID int,
+  Rating int,
   BewertungText nvarchar(255),
   Geprueft boolean
 );
