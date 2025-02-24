@@ -19,7 +19,8 @@ join Kategorie k on z.KategorieId=k.Id
 join Typ t on t.Id=z.Typ
 where z.KategorieId=cat and z.Typ=typ or
       z.KategorieId=cat and typ=-1 or
-      z.Typ=typ and cat=-1;
+      z.Typ=typ and cat=-1 or
+      typ=-1 and cat=-1;
 
 end//
 
