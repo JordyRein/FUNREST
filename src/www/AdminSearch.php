@@ -27,7 +27,9 @@ switch($_GET["req"]){
     $i=0;
     $list_cust=array();
     foreach ($res as $row){
-      array_push($list_cust,new Customer($row['Vorname'],
+      array_push($list_cust,new Customer(
+          $row['Id'],
+          $row['Vorname'],
           $row['Nachname'],
           $row['Strasse_Nummer'],
           $row['PLZ'],
@@ -89,7 +91,7 @@ switch($_GET["req"]){
           $row['Typ'],
           $row['Bild'],
           $row['Preis']
-      );
+      ));
 
       ++$i;
     }
@@ -124,7 +126,7 @@ switch($_GET["req"]){
           $row['Preis'],
           $row['PrueferVorname'],
           $row['PrueferNachname']
-      );
+      ));
 
       ++$i;
     }
