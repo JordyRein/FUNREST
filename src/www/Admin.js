@@ -158,6 +158,7 @@ newReserveButton.onclick=()=>{
 
 function SubmitNewReservation(){
   var fd = new FormData(infotable);
+  console.log(fd);
   var r = new Reservation();
   console.log(JSON.stringify(fd));
 
@@ -167,5 +168,5 @@ function SubmitNewReservation(){
       },
       ()=>{
       },
-      JSON.stringify(fd));
+      fd);
 }

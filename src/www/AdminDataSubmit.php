@@ -16,12 +16,17 @@ if(isset($_GET["search"])){
       break;
 
     case "Buchung":
+      $s="";
       if(isset($_POST["RoomId"])){
-        echo $_POST["RoomId"];
+        $s=$s.$_POST["RoomId"];
+      }
+      if(isset($_POST["StartDate"])){
+        $s=$s.$_POST["StartDate"];
       }
       break;
 
   }
+  echo json_encode($s);
 }
 
 
