@@ -7,9 +7,10 @@ db="FUNREST"
 unameOut="$(uname -s)"
 echo "Current OS:${unameOut}"
 
+echo "Initiating mySQL script"
+
 case "${unameOut}" in
   Linux*) 
-    echo "Initiating mySQL script"
 
     cat table.sql | mysql -u $usr -p$pass $db
 
