@@ -1,6 +1,7 @@
 <?php
 
 class Customer{
+  public $Id;
   public $FirstName;
   public $LastName;
   public $Address;
@@ -11,7 +12,8 @@ class Customer{
   public $Stammgast;
 
 
-  function __construct($fname, $lname, $addr, $plz, $loc, $sex, $bday,$sg){
+  function __construct($id, $fname, $lname, $addr, $plz, $loc, $sex, $bday,$sg){
+    $this->Id=$id;
     $this->FirstName=$fname;
     $this->LastName=$lname;
     $this->Address=$addr;

@@ -44,53 +44,53 @@ async function fetchBewertungen(suchbegriff){
     }, ()=>{})
 }
 
-const ArrayBuchungen = [
-    {
-        id: '1',
-        kunde: {vorname: "Hans",
-                nachname: "Wurst", 
-                strHausnummer: "Fleischeralle 9",
-                plz: '23487',
-                stadt: "Hackstadt",
-                geschlecht: "d",
-                gebdatum: new Date()},
-        zimmer: ArrayZimmer[3], 
-        buchungszeitraum: 3,
-        anreise: new Date(), 
-        abreise: new Date(),
-        bewertung: false 
-    },
-    {
-        id: '2',
-        kunde: {vorname: "Hans",
-                nachname: "Wurst", 
-                strHausnummer: "Fleischeralle 9",
-                plz: '23487',
-                stadt: "Hackstadt",
-                geschlecht: "d",
-                gebdatum: new Date()},
-        zimmer: ArrayZimmer[2], 
-        buchungszeitraum: 7,
-        anreise: new Date(), 
-        abreise: new Date(),
-        bewertung: false 
-    },
-    {
-        id: '3',
-        kunde: {vorname: "elli",
-                nachname: "Nachname", 
-                strHausnummer: "Blümchenweg 69",
-                plz: '23487',
-                stadt: "Hackstadt",
-                geschlecht: "weiblich",
-                gebdatum: new Date()},
-        zimmer: ArrayZimmer[1], 
-        buchungszeitraum: 1,
-        anreise: new Date(), 
-        abreise: new Date(),
-        bewertung: false  
-    }
-]
+// const ArrayBuchungen = [
+//     {
+//         id: '1',
+//         kunde: {vorname: "Hans",
+//                 nachname: "Wurst", 
+//                 strHausnummer: "Fleischeralle 9",
+//                 plz: '23487',
+//                 stadt: "Hackstadt",
+//                 geschlecht: "d",
+//                 gebdatum: new Date()},
+//         zimmer: ArrayZimmer[3], 
+//         buchungszeitraum: 3,
+//         anreise: new Date(), 
+//         abreise: new Date(),
+//         bewertung: false 
+//     },
+//     {
+//         id: '2',
+//         kunde: {vorname: "Hans",
+//                 nachname: "Wurst", 
+//                 strHausnummer: "Fleischeralle 9",
+//                 plz: '23487',
+//                 stadt: "Hackstadt",
+//                 geschlecht: "d",
+//                 gebdatum: new Date()},
+//         zimmer: ArrayZimmer[2], 
+//         buchungszeitraum: 7,
+//         anreise: new Date(), 
+//         abreise: new Date(),
+//         bewertung: false 
+//     },
+//     {
+//         id: '3',
+//         kunde: {vorname: "elli",
+//                 nachname: "Nachname", 
+//                 strHausnummer: "Blümchenweg 69",
+//                 plz: '23487',
+//                 stadt: "Hackstadt",
+//                 geschlecht: "weiblich",
+//                 gebdatum: new Date()},
+//         zimmer: ArrayZimmer[1], 
+//         buchungszeitraum: 1,
+//         anreise: new Date(), 
+//         abreise: new Date(),
+//         bewertung: false  
+//     }
+// ]
 
 const ArrayBewertungen = [
     {
@@ -289,18 +289,19 @@ async function getKunde(suchbegriff){
         newKunde.forEach(kunde => {
             const row = document.createElement('tr');
             const cellID = document.createElement('td');
-            cellID.textContent = kunde.id;
+            cellID.textContent = kunde.Id;
             row.appendChild(cellID);
             const cellName = document.createElement('td');
-            cellName.textContent = kunde.nachname + ', ' + kunde.vorname;
+            cellName.textContent = kunde.LastName + ', ' + kunde.FirstName;
             row.appendChild(cellName);
             const cellGebDatum = document.createElement('td');
-            cellGebDatum.textContent = kunde.gebdatum;
+            cellGebDatum.textContent = kunde.Birthday;
             row.appendChild(cellGebDatum);
             const button = document.createElement('button')
-            button.id = kunde.id
+            button.id = kunde.Id
             button.textContent = 'Bearbeiten'
-            button.setAttribute('onclick', `changeKundenProfil('${kunde.id}')`)
+            // button.setAttribute('onclick', `changeKundenProfil('${kunde.id}')`)
+            button.onclick = ()=> changeKundenProfil(kunde.Id)
             row.appendChild(button)
 
             tbody.appendChild(row);
@@ -315,7 +316,7 @@ async function getKunde(suchbegriff){
 function changeKundenProfil(idKunde){
     console.log(idKunde)
     clearDataGrid()
-    let zuändernderKunde = ArrayKunden.filter(kunde => kunde.id === idKunde)
+    let zuändernderKunde = newKunde.filter(kunde => kunde.Id === idKunde)
     console.log(zuändernderKunde[0])
     const dataGrid = document.getElementById('dataGrid')
 
@@ -323,11 +324,11 @@ function changeKundenProfil(idKunde){
     form.id = 'profileForm';
 
     const fields = [
-        { label: 'Vorname:', id: 'firstName', type: 'text', value: zuändernderKunde[0].vorname},
-        { label: 'Nachname:', id: 'lastName', type: 'text', value: zuändernderKunde[0].nachname},
-        { label: 'Straße & Hausnummer:', id: 'street', type: 'text', value: zuändernderKunde[0].strHausnummer},
-        { label: 'PLZ:', id: 'zipCode', type: 'text', pattern: '[0-9]*', value: zuändernderKunde[0].plz},
-        { label: 'Stadt:', id: 'city', type: 'text', value: zuändernderKunde[0].stadt}
+        { label: 'Vorname:', id: 'firstName', type: 'text', value: zuändernderKunde[0].FirstName},
+        { label: 'Nachname:', id: 'lastName', type: 'text', value: zuändernderKunde[0].LastName},
+        { label: 'Straße & Hausnummer:', id: 'street', type: 'text', value: zuändernderKunde[0].Address},
+        { label: 'PLZ:', id: 'zipCode', type: 'text', pattern: '[0-9]*', value: zuändernderKunde[0].PLZ},
+        { label: 'Stadt:', id: 'city', type: 'text', value: zuändernderKunde[0].Location}
     ];
 
     fields.forEach(field => {
@@ -362,26 +363,26 @@ function changeKundenProfil(idKunde){
     optionElement.textContent = 'keine Angabe';
     genderSelect.appendChild(optionElement);
     const optionElementM = document.createElement('option');
-    optionElementM.value = 'männlich';
+    optionElementM.value = 'M';
     optionElementM.textContent = 'männlich';
     genderSelect.appendChild(optionElementM);
     const optionElementW = document.createElement('option');
-    optionElementW.value = 'weiblich';
+    optionElementW.value = 'W';
     optionElementW.textContent = 'weiblich';
     genderSelect.appendChild(optionElementW);
     const optionElementD = document.createElement('option');
-    optionElementD.value = 'divers';
+    optionElementD.value = 'D';
     optionElementD.textContent = 'divers';
     genderSelect.appendChild(optionElementD);
 
-    switch (zuändernderKunde[0].geschlecht) {
-        case "männlich":
+    switch (zuändernderKunde[0].Sex) {
+        case "M":
             optionElementM.defaultSelected = true
             break;
-        case "weiblich":
+        case "W":
             optionElementW.defaultSelected = true
             break;
-        case "divers":
+        case "D":
             optionElementD.defaultSelected = true
             break;
         default:
@@ -393,6 +394,7 @@ function changeKundenProfil(idKunde){
     // Geburtsdatum
     const birthDateLabel = document.createElement('label');
     birthDateLabel.setAttribute('for', 'birthDate');
+    // birthDateLabel.for = ()=> birthDate
     birthDateLabel.textContent = 'Geburtsdatum:';
     form.appendChild(birthDateLabel);
 
@@ -401,7 +403,7 @@ function changeKundenProfil(idKunde){
     birthDateInput.id = 'birthDate';
     birthDateInput.name = 'birthDate';
     birthDateInput.required = true;
-    birthDateInput.value = formatDateForInput(zuändernderKunde[0].gebdatum)
+    birthDateInput.value = formatDateForInput(zuändernderKunde[0].Birthday)
     form.appendChild(birthDateInput);
 
     // Submit Button
@@ -412,15 +414,19 @@ function changeKundenProfil(idKunde){
     form.addEventListener('submit', function(event) {
         event.preventDefault();
 
-        const vorname = this[0].value
-        const nachname = this[1].value
-        const strHausnummer = this[2].value
-        const plz = this[3].value
-        const stadt = this[4].value
-        const geschlecht = this[5].value
-        const gebdatum = this[6].value
-
+        const newKunde = {
+            Id: zuändernderKunde[0].Id,
+            FirstName: this[0].value,
+            LastName: this[1].value,
+            Address: this[2].value,
+            PLZ: this[3].value,
+            City: this[4].value,
+            Sex: this[5].value,
+            Birthdate: this[6].value
+        }
         //Hier die Speicherfunktion zur Datenbank
+        console.log('veränderter kunde', newKunde)
+        RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde', ()=>{}, ()=>{}, newKunde)
 
         alert('Profil erfolgreich angelegt!');
         clearDataGrid()
@@ -430,10 +436,10 @@ function changeKundenProfil(idKunde){
 }
 
 function formatDateForInput(date) {
-    const parts = date.split('.');
-    let day = parseInt(parts[0], 10); 
+    const parts = date.split('-');
+    let year = parseInt(parts[0], 10); 
     let month = parseInt(parts[1], 10); 
-    let year = parseInt(parts[2], 10); 
+    let day = parseInt(parts[2], 10); 
 
     if(day/10 < 1){
         day = '0' + day
@@ -441,12 +447,6 @@ function formatDateForInput(date) {
     if(month/10 < 1){
         month = '0' + month
     }
-    // const gebdate = new Date(year, month, day);
-
-    // year = gebdate.getFullYear();
-    // month = String(gebdate.getMonth() + 1).padStart(2, '0'); // Monat ist 0-basiert, daher +1
-    // day = String(gebdate.getDate()).padStart(2, '0');
-    console.log(`${year}-${month}-${day}`)
     return `${year}-${month}-${day}`;
 }
 
@@ -531,15 +531,18 @@ function addKunde(){
     form.addEventListener('submit', function(event) {
         event.preventDefault();
 
-        const vorname = this[0].value
-        const nachname = this[1].value
-        const strHausnummer = this[2].value
-        const plz = this[3].value
-        const stadt = this[4].value
-        const geschlecht = this[5].value
-        const gebdatum = this[6].value
-
+        const newKunde = {
+            Id: zuändernderKunde[0].Id,
+            FirstName: this[0].value,
+            LastName: this[1].value,
+            Address: this[2].value,
+            PLZ: this[3].value,
+            City: this[4].value,
+            Sex: this[5].value,
+            Birthdate: this[6].value
+        }
         //Hier die Speicherfunktion zur Datenbank
+        RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde', ()=>{}, ()=>{}, newKunde)
 
         alert('Profil erfolgreich angelegt!');
         clearDataGrid()
@@ -621,8 +624,8 @@ async function getZimmer(suchbegriff){
                 } else if (sortState === 2) {  // Aufsteigend
                     return aCol > bCol ? 1 : -1;
                 } else {  // Sortierung zurücksetzen (Originalreihenfolge)
-                    return ArrayZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: aCol, kategorie: b.getElementsByTagName('td')[1].textContent, betten: b.getElementsByTagName('td')[2].textContent, preis: b.getElementsByTagName('td')[3].textContent})))) - 
-                        ArrayZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: bCol, kategorie: a.getElementsByTagName('td')[1].textContent, betten: a.getElementsByTagName('td')[2].textContent, preis: a.getElementsByTagName('td')[3].textContent})))) 
+                    return newZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: aCol, kategorie: b.getElementsByTagName('td')[1].textContent, betten: b.getElementsByTagName('td')[2].textContent, preis: b.getElementsByTagName('td')[3].textContent})))) - 
+                    newZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: bCol, kategorie: a.getElementsByTagName('td')[1].textContent, betten: a.getElementsByTagName('td')[2].textContent, preis: a.getElementsByTagName('td')[3].textContent})))) 
                 }
             });
             while (tbody.firstChild) {
@@ -737,7 +740,7 @@ function addBuchung(){
     zimmerSelect.name = 'zimmer';
     zimmerSelect.required = true;
    
-    ArrayZimmer.forEach(zimmer =>{
+    newZimmer.forEach(zimmer =>{
         const optionZimmer = document.createElement('option');
         optionZimmer.value = zimmer.name;
         optionZimmer.textContent = zimmer.kategorie + ': ' + zimmer.name;
