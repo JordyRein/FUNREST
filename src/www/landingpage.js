@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = 'visitorpage.html';
     });
 });
+
 const ArrayBewertungen = [
     {
         id: 'kl523',
@@ -37,9 +38,7 @@ const ArrayBewertungen = [
 
 function ladeBewertungen(){
     const bewertungsContainer = document.getElementById('bewertungen')
-    // bewertungsContainer.style.gap = '20px'
     let anzuzeigendeBewertungen = ArrayBewertungen.filter(bewertung => bewertung.freigegeben === true)
- debugger
     anzuzeigendeBewertungen.forEach(bewertung => {
 
         const bewertungDiv = document.createElement('div');

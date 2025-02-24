@@ -1,27 +1,46 @@
-const ArrayZimmer = [
-    {name: 'HansWurst', kategorie: 'Premium', betten: 'doppelbett', preis: '120€'},
-    {name: 'Elise', kategorie: 'Standard', betten: 'einzelbett', preis: '40€'},
-    {name: 'peter', kategorie: 'Luxus', betten: 'doppelbett', preis: '190€'},
-    {name: 'Wolf', kategorie: 'Standard', betten: 'einzelbett', preis: '60€'}
-]
+import { Room } from "./ClassZimmer.js";
 
-async function RequestPHPAsync(url, todo, err){
-    try{
-      const res = await fetch (url);
-      const data = await res.text();
-      todo(data);
-    }
-    catch{
-      err();
-    }
-  }
+// const ArrayZimmer = [
+//     {name: 'HansWurst', kategorie: 'Premium', betten: 'doppelbett', preis: '120€'},
+//     {name: 'Elise', kategorie: 'Standard', betten: 'einzelbett', preis: '40€'},
+//     {name: 'peter', kategorie: 'Luxus', betten: 'doppelbett', preis: '190€'},
+//     {name: 'Wolf', kategorie: 'Standard', betten: 'einzelbett', preis: '60€'}
+// ]
 
-function fetchZimmer(suchbegriff){
+let newZimmer
+let newKunde
+let newBuchungen
+let newBewertungen
+
+async function fetchZimmer(suchbegriff){
     const url = "AdminSearch.php?req=Zimmer&search="+encodeURIComponent(suchbegriff);
-    RequestPHPAsync(url, (data)=>{
-        data.forEach(d => {
-            ArrayZimmer.push(new Zimmer(d.Name, d.Kategorie, d.Typ, d.Bild, d.Preis))
-        });
+    await RequestPHPAsync(url, (data)=>{
+        const zimmer = JSON.parse(data)
+        newZimmer = zimmer
+    }, ()=>{})
+}
+
+async function fetchKunden(suchbegriff){
+    const url = "AdminSearch.php?req=Kunde&search="+encodeURIComponent(suchbegriff);
+    await RequestPHPAsync(url, (data)=>{
+        const kunde = JSON.parse(data)
+        newKunde = kunde
+    }, ()=>{})
+}
+
+async function fetchBuchungen(suchbegriff){
+    const url = "AdminSearch.php?req=Buchung&search="+encodeURIComponent(suchbegriff);
+    await RequestPHPAsync(url, (data)=>{
+        const buchung = JSON.parse(data)
+        newBuchungen = buchung
+    }, ()=>{})
+}
+
+async function fetchBewertungen(suchbegriff){
+    const url = "AdminSearch.php?req=Bewertung&search="+encodeURIComponent(suchbegriff);
+    await RequestPHPAsync(url, (data)=>{
+        const bewertung = JSON.parse(data)
+        newBewertungen = bewertung
     }, ()=>{})
 }
 
@@ -102,38 +121,38 @@ const ArrayBewertungen = [
     },
 ]
 
-const ArrayKunden = [
-    {
-        id: '00001',
-        vorname: "Hans",
-        nachname: "Wurst", 
-        strHausnummer: "Fleischeralle 9",
-        plz: '23487',
-        stadt: "Hackstadt",
-        geschlecht: "divers",
-        gebdatum: '23.11.1973'
-    },
-    {
-        id: '00002',
-        vorname: "elli",
-        nachname: "Nachname", 
-        strHausnummer: "Blümchenweg 69",
-        plz: '23487',
-        stadt: "Hackstadt",
-        geschlecht: "weiblich",
-        gebdatum: '16.08.1999'
-    },
-    {
-        id: '00003',
-        vorname: "mark",
-        nachname: "dummi", 
-        strHausnummer: "Weg 9",
-        plz: '23487',
-        stadt: "Hackstadt",
-        geschlecht: "weiblich",
-        gebdatum: '06.01.1999'
-    }
-]
+// const ArrayKunden = [
+//     {
+//         id: '00001',
+//         vorname: "Hans",
+//         nachname: "Wurst", 
+//         strHausnummer: "Fleischeralle 9",
+//         plz: '23487',
+//         stadt: "Hackstadt",
+//         geschlecht: "divers",
+//         gebdatum: '23.11.1973'
+//     },
+//     {
+//         id: '00002',
+//         vorname: "elli",
+//         nachname: "Nachname", 
+//         strHausnummer: "Blümchenweg 69",
+//         plz: '23487',
+//         stadt: "Hackstadt",
+//         geschlecht: "weiblich",
+//         gebdatum: '16.08.1999'
+//     },
+//     {
+//         id: '00003',
+//         vorname: "mark",
+//         nachname: "dummi", 
+//         strHausnummer: "Weg 9",
+//         plz: '23487',
+//         stadt: "Hackstadt",
+//         geschlecht: "weiblich",
+//         gebdatum: '06.01.1999'
+//     }
+// ]
 
 let loggedInUser
 let loggedIn = false
@@ -249,50 +268,48 @@ function closeLogin(){
     headerbutton.style.display = 'flex'
 }
 
-function getKunde(suchbegriff){
-    let anzuzeigendeKunden
-    if(suchbegriff != ''){
-        anzuzeigendeKunden = ArrayKunden.filter(kunde => kunde.id === suchbegriff || kunde.nachname === suchbegriff)
-    }else{
-        anzuzeigendeKunden = ArrayKunden
-    }
-    clearDataGrid()
-    const dataGrid = document.getElementById('dataGrid')
+async function getKunde(suchbegriff){
+    await fetchKunden(suchbegriff).then((value)=>{
+        console.log(newKunde)
+        clearDataGrid()
+        const dataGrid = document.getElementById('dataGrid')
 
-    const table = document.createElement('table');
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
 
-    ['Kundennummer', 'Name', 'Geburtsdatum', ''].forEach((headerText) => {
-        const th = document.createElement('th');
-        th.textContent = headerText;
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
+        ['Kundennummer', 'Name', 'Geburtsdatum', ''].forEach((headerText) => {
+            const th = document.createElement('th');
+            th.textContent = headerText;
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
 
-    const tbody = document.createElement('tbody');
-    anzuzeigendeKunden.forEach(kunde => {
-        const row = document.createElement('tr');
-        const cellID = document.createElement('td');
-        cellID.textContent = kunde.id;
-        row.appendChild(cellID);
-        const cellName = document.createElement('td');
-        cellName.textContent = kunde.nachname + ', ' + kunde.vorname;
-        row.appendChild(cellName);
-        const cellGebDatum = document.createElement('td');
-        cellGebDatum.textContent = kunde.gebdatum;
-        row.appendChild(cellGebDatum);
-        const button = document.createElement('button')
-        button.id = kunde.id
-        button.textContent = 'Bearbeiten'
-        button.setAttribute('onclick', `changeKundenProfil('${kunde.id}')`)
-        row.appendChild(button)
+        const tbody = document.createElement('tbody');
+        newKunde.forEach(kunde => {
+            const row = document.createElement('tr');
+            const cellID = document.createElement('td');
+            cellID.textContent = kunde.id;
+            row.appendChild(cellID);
+            const cellName = document.createElement('td');
+            cellName.textContent = kunde.nachname + ', ' + kunde.vorname;
+            row.appendChild(cellName);
+            const cellGebDatum = document.createElement('td');
+            cellGebDatum.textContent = kunde.gebdatum;
+            row.appendChild(cellGebDatum);
+            const button = document.createElement('button')
+            button.id = kunde.id
+            button.textContent = 'Bearbeiten'
+            button.setAttribute('onclick', `changeKundenProfil('${kunde.id}')`)
+            row.appendChild(button)
 
-        tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
+            tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+        
+        dataGrid.appendChild(table);
+    })
     
-    dataGrid.appendChild(table);
 }
 
 function changeKundenProfil(idKunde){
@@ -532,171 +549,153 @@ function addKunde(){
     
 }
 
-function getZimmer(suchbegriff){
+async function getZimmer(suchbegriff){
+    await fetchZimmer(suchbegriff).then((value)=>{
+        clearDataGrid()
+        const dataGrid = document.getElementById('dataGrid')
 
-    fetchZimmer(suchbegriff)
-    console.log(ArrayZimmer)
-
-    let zuZeigendeZimmer
-    if(suchbegriff === undefined){
-        zuZeigendeZimmer = ArrayZimmer
-    }else{
-        zuZeigendeZimmer = ArrayZimmer.filter(zimmer => zimmer.name.includes(suchbegriff) || 
-                                                        zimmer.kategorie.includes(suchbegriff) ||
-                                                        zimmer.betten.includes(suchbegriff) ||
-                                                        zimmer.preis.includes(suchbegriff))                       
-    }
-
-    clearDataGrid()
-    const dataGrid = document.getElementById('dataGrid')
-
-    const table = document.createElement('table');
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-    
-    // Objekt, das den Sortierungszustand für jede Spalte speichert
-    const sortStates = {};
-
-    ['Name', 'Kategorie', 'Betten', 'Preis'].forEach((headerText, index) => {
-        const th = document.createElement('th');
-        th.textContent = headerText;
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
         
-        const sortIndicator = document.createElement('span');
-        sortIndicator.className = 'sort-indicator sort-none';
-        th.appendChild(sortIndicator);
+        // Objekt, das den Sortierungszustand für jede Spalte speichert
+        const sortStates = {};
 
-        th.addEventListener('click', () => {
-            sortStates[headerText.toLowerCase()] = (sortStates[headerText.toLowerCase()] || 0) + 1;
-            if (sortStates[headerText.toLowerCase()] > 2) {
-                sortStates[headerText.toLowerCase()] = 0;  // Zurücksetzen nach 2 Klicks
-            }
-            sortTable(headerText.toLowerCase(), index, sortStates[headerText.toLowerCase()]);
+        ['Name', 'Betten', 'Kategorie', 'Preis', 'Bildpfad'].forEach((headerText, index) => {
+            const th = document.createElement('th');
+            th.textContent = headerText;
+            
+            const sortIndicator = document.createElement('span');
+            sortIndicator.className = 'sort-indicator sort-none';
+            th.appendChild(sortIndicator);
 
-            // Update des Sortierungsindikators
-            const indicators = document.querySelectorAll('.sort-indicator');
-            indicators.forEach(ind => {
-                ind.className = 'sort-indicator sort-none';
+            th.addEventListener('click', () => {
+                sortStates[headerText.toLowerCase()] = (sortStates[headerText.toLowerCase()] || 0) + 1;
+                if (sortStates[headerText.toLowerCase()] > 2) {
+                    sortStates[headerText.toLowerCase()] = 0;
+                }
+                sortTable(headerText.toLowerCase(), index, sortStates[headerText.toLowerCase()]);
+
+                // Update des Sortierungsindikators
+                const indicators = document.querySelectorAll('.sort-indicator');
+                indicators.forEach(ind => {
+                    ind.className = 'sort-indicator sort-none';
+                });
+                if (sortStates[headerText.toLowerCase()] === 1) {
+                    sortIndicator.className = 'sort-indicator sort-desc';
+                } else if (sortStates[headerText.toLowerCase()] === 2) {
+                    sortIndicator.className = 'sort-indicator sort-asc';
+                }
             });
-            if (sortStates[headerText.toLowerCase()] === 1) {
-                sortIndicator.className = 'sort-indicator sort-desc';
-            } else if (sortStates[headerText.toLowerCase()] === 2) {
-                sortIndicator.className = 'sort-indicator sort-asc';
-            }
+            headerRow.appendChild(th);
         });
-        headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
 
-    const tbody = document.createElement('tbody');
-    zuZeigendeZimmer.forEach(rowData => {
-        const row = document.createElement('tr');
-        Object.values(rowData).forEach(cellData => {
-            const cell = document.createElement('td');
-            cell.textContent = cellData;
-            row.appendChild(cell);
-        });
-        tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
-
-    // Sortierungsfunktion mit Sortierungszustand
-    function sortTable(column, columnIndex, sortState) {
-        let rows = Array.from(tbody.getElementsByTagName('tr'));
-        let sortedRows = rows.sort((a, b) => {
-            let aCol = a.getElementsByTagName('td')[columnIndex].textContent;
-            let bCol = b.getElementsByTagName('td')[columnIndex].textContent;
-
-            if (column === 'preis') {
-                aCol = parseFloat(aCol.replace('€', ''));
-                bCol = parseFloat(bCol.replace('€', ''));
-            }
-
-            if (sortState === 1) {  // Absteigend
-                return bCol > aCol ? 1 : -1;
-            } else if (sortState === 2) {  // Aufsteigend
-                return aCol > bCol ? 1 : -1;
-            } else {  // Sortierung zurücksetzen (Originalreihenfolge)
-                return ArrayZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: aCol, kategorie: b.getElementsByTagName('td')[1].textContent, betten: b.getElementsByTagName('td')[2].textContent, preis: b.getElementsByTagName('td')[3].textContent})))) - 
-                       ArrayZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: bCol, kategorie: a.getElementsByTagName('td')[1].textContent, betten: a.getElementsByTagName('td')[2].textContent, preis: a.getElementsByTagName('td')[3].textContent})))) 
-            }
-        });
-        while (tbody.firstChild) {
-            tbody.removeChild(tbody.firstChild);
-        }
-        sortedRows.forEach(row => {
+        const tbody = document.createElement('tbody');
+        newZimmer.forEach(rowData => {
+            const row = document.createElement('tr');
+            Object.values(rowData).forEach(cellData => {
+                const cell = document.createElement('td');
+                cell.textContent = cellData;
+                row.appendChild(cell);
+            });
             tbody.appendChild(row);
         });
-    }
-        // Füge die Tabelle zum Body hinzu
-        dataGrid.appendChild(table);
+        table.appendChild(tbody);
 
-    // }
+        // Sortierungsfunktion mit Sortierungszustand
+        function sortTable(column, columnIndex, sortState) {
+            let rows = Array.from(tbody.getElementsByTagName('tr'));
+            let sortedRows = rows.sort((a, b) => {
+                let aCol = a.getElementsByTagName('td')[columnIndex].textContent;
+                let bCol = b.getElementsByTagName('td')[columnIndex].textContent;
+
+                if (column === 'preis') {
+                    aCol = parseFloat(aCol.replace('€', ''));
+                    bCol = parseFloat(bCol.replace('€', ''));
+                }
+
+                if (sortState === 1) {  // Absteigend
+                    return bCol > aCol ? 1 : -1;
+                } else if (sortState === 2) {  // Aufsteigend
+                    return aCol > bCol ? 1 : -1;
+                } else {  // Sortierung zurücksetzen (Originalreihenfolge)
+                    return ArrayZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: aCol, kategorie: b.getElementsByTagName('td')[1].textContent, betten: b.getElementsByTagName('td')[2].textContent, preis: b.getElementsByTagName('td')[3].textContent})))) - 
+                        ArrayZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: bCol, kategorie: a.getElementsByTagName('td')[1].textContent, betten: a.getElementsByTagName('td')[2].textContent, preis: a.getElementsByTagName('td')[3].textContent})))) 
+                }
+            });
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+            sortedRows.forEach(row => {
+                tbody.appendChild(row);
+            });
+        }
+            // Füge die Tabelle zum Body hinzu
+            dataGrid.appendChild(table);
+    })
+    
 }
 
-function getBuchung(suchbegriff){
-    clearDataGrid()
+async function getBuchung(suchbegriff){
+    await fetchBuchungen(suchbegriff).then((value)=>{
+        console.log(newBuchungen)
+        clearDataGrid()
 
-    let anzuzeigendeBuchungen 
-    if(suchbegriff === ""){
-        anzuzeigendeBuchungen = ArrayBuchungen
-    }else{
-        anzuzeigendeBuchungen = ArrayBuchungen.filter(buchung => 
-            (suchbegriff.includes(buchung.kunde.nachname) && suchbegriff.includes(buchung.kunde.vorname)) || buchung.id === suchbegriff 
-        )
-    }
+        const dataGrid = document.getElementById('dataGrid')
 
-    const dataGrid = document.getElementById('dataGrid')
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
 
-    const table = document.createElement('table');
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
+        ['ID', 'Kunde', 'Zimmer', 'Preis', 'Anreise', 'Abreise'].forEach((headerText) => {
+            const th = document.createElement('th');
+            th.textContent = headerText;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
 
-    ['ID', 'Kunde', 'Zimmer', 'Preis', 'Anreise', 'Abreise'].forEach((headerText) => {
-        const th = document.createElement('th');
-        th.textContent = headerText;
-        headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
+        const tbody = document.createElement('tbody');
+        newBuchungen.forEach(rowData => {
+            const row = document.createElement('tr');
 
-    const tbody = document.createElement('tbody');
-    anzuzeigendeBuchungen.forEach(rowData => {
-        const row = document.createElement('tr');
+            const cellId = document.createElement('td')
+            cellId.textContent = rowData.id;
+            row.appendChild(cellId);
 
-        const cellId = document.createElement('td')
-        cellId.textContent = rowData.id;
-        row.appendChild(cellId);
+            const cellKunde = document.createElement('td')
+            cellKunde.textContent = rowData.kunde.nachname + ', ' + rowData.kunde.vorname;
+            row.appendChild(cellKunde);
 
-        const cellKunde = document.createElement('td')
-        cellKunde.textContent = rowData.kunde.nachname + ', ' + rowData.kunde.vorname;
-        row.appendChild(cellKunde);
+            const cellZimmer = document.createElement('td')
+            cellZimmer.textContent = rowData.zimmer.kategorie + ': ' + rowData.zimmer.name;
+            row.appendChild(cellZimmer);
 
-        const cellZimmer = document.createElement('td')
-        cellZimmer.textContent = rowData.zimmer.kategorie + ': ' + rowData.zimmer.name;
-        row.appendChild(cellZimmer);
+            const cellPreis = document.createElement('td')
+            let preis = rowData.buchungszeitraum * parseInt(rowData.zimmer.preis.replace('€', ''))
+            cellPreis.textContent = preis
+            row.appendChild(cellPreis);
 
-        const cellPreis = document.createElement('td')
-        let preis = rowData.buchungszeitraum * parseInt(rowData.zimmer.preis.replace('€', ''))
-        cellPreis.textContent = preis
-        row.appendChild(cellPreis);
+            const cellAnreise = document.createElement('td')
+            let date = rowData.anreise.getDate().toString().padStart(2, '0') + '.' + (rowData.anreise.getMonth() + 1).toString().padStart(2, '0') + '.' + rowData.anreise.getFullYear()
+            cellAnreise.textContent = date
+            row.appendChild(cellAnreise);
 
-        const cellAnreise = document.createElement('td')
-        let date = rowData.anreise.getDate().toString().padStart(2, '0') + '.' + (rowData.anreise.getMonth() + 1).toString().padStart(2, '0') + '.' + rowData.anreise.getFullYear()
-        cellAnreise.textContent = date
-        row.appendChild(cellAnreise);
+            const cellAbreise = document.createElement('td')
+            date = rowData.abreise.getDate().toString().padStart(2, '0') + '.' + (rowData.abreise.getMonth() + 1).toString().padStart(2, '0') + '.' + rowData.abreise.getFullYear()
+            cellAbreise.textContent = date
+            row.appendChild(cellAbreise);
 
-        const cellAbreise = document.createElement('td')
-        date = rowData.abreise.getDate().toString().padStart(2, '0') + '.' + (rowData.abreise.getMonth() + 1).toString().padStart(2, '0') + '.' + rowData.abreise.getFullYear()
-        cellAbreise.textContent = date
-        row.appendChild(cellAbreise);
+            tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
 
-        tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
-
-    // Füge die Tabelle zum Body hinzu
-    dataGrid.appendChild(table);
+        // Füge die Tabelle zum Body hinzu
+        dataGrid.appendChild(table);
+    })
+        
 
 }
 
@@ -790,68 +789,65 @@ function addBuchung(){
     dataGrid.appendChild(form);
 }
 
-function getBewertungen(offene){
-    let anzuzeigendeBewertungen
-    if(offene === true){
-        anzuzeigendeBewertungen = ArrayBewertungen.filter(bewertung => bewertung.freigegeben === false)
-    }else{
-        anzuzeigendeBewertungen = ArrayBewertungen
-    }
+async function getBewertungen(offene){
+    await fetchBewertungen(suchbegriff).then((value)=>{
+        console.log(newBewertungen)
+        clearDataGrid()
+        const dataGrid = document.getElementById('dataGrid')
 
-    clearDataGrid()
-    const dataGrid = document.getElementById('dataGrid')
+        newBewertungen.forEach(bewertung => {
+            const bewertungsDiv = document.createElement('div')
+            bewertungsDiv.className = 'bewertungContainer'
+            bewertungsDiv.style.width = '90%'
 
-    anzuzeigendeBewertungen.forEach(bewertung => {
-        const bewertungsDiv = document.createElement('div')
-        bewertungsDiv.className = 'bewertungContainer'
-        bewertungsDiv.style.width = '90%'
+            const ersteReihe = document.createElement('div');
+            ersteReihe.className = 'ersteReihe';
 
-        const ersteReihe = document.createElement('div');
-        ersteReihe.className = 'ersteReihe';
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = bewertung.kunde.nachname + ', ' + bewertung.kunde.vorname;
+            nameSpan.className = 'nameSpan';
 
-        const nameSpan = document.createElement('span');
-        nameSpan.textContent = bewertung.kunde.nachname + ', ' + bewertung.kunde.vorname;
-        nameSpan.className = 'nameSpan';
+            const checkboxDiv = document.createElement('div');
+            checkboxDiv.className = 'checkboxContainer';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'checkboxInput';
+            checkbox.checked = bewertung.freigegeben
+            const checkboxLabel = document.createElement('label');
+            checkboxLabel.id = bewertung.id;
+            checkboxLabel.textContent = 'Freigeben';
+            checkboxLabel.className = 'checkboxSpan';
+            checkboxLabel.setAttribute('onclick', 'releaseBewertung(event)')
 
-        const checkboxDiv = document.createElement('div');
-        checkboxDiv.className = 'checkboxContainer';
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'checkboxInput';
-        checkbox.checked = bewertung.freigegeben
-        const checkboxLabel = document.createElement('label');
-        checkboxLabel.id = bewertung.id;
-        checkboxLabel.textContent = 'Freigeben';
-        checkboxLabel.className = 'checkboxSpan';
-        checkboxLabel.setAttribute('onclick', 'releaseBewertung(event)')
+            checkboxDiv.appendChild(checkbox);
+            checkboxDiv.appendChild(checkboxLabel);
+            
+            const sterneSpan = document.createElement('span');
+            sterneSpan.textContent = bewertung.sterne + ' von 5 Sternen'
+            sterneSpan.className = 'sterneSpan';
 
-        checkboxDiv.appendChild(checkbox);
-        checkboxDiv.appendChild(checkboxLabel);
-        
-        const sterneSpan = document.createElement('span');
-        sterneSpan.textContent = bewertung.sterne + ' von 5 Sternen'
-        sterneSpan.className = 'sterneSpan';
+            ersteReihe.appendChild(nameSpan);
+            ersteReihe.appendChild(checkboxDiv);
+            ersteReihe.appendChild(sterneSpan);
 
-        ersteReihe.appendChild(nameSpan);
-        ersteReihe.appendChild(checkboxDiv);
-        ersteReihe.appendChild(sterneSpan);
+            const zweiteReihe = document.createElement('div');
+            zweiteReihe.className = 'zweiteReihe';
 
-        const zweiteReihe = document.createElement('div');
-        zweiteReihe.className = 'zweiteReihe';
+            const textarea = document.createElement('textarea');
+            textarea.className = 'textBewertung';
+            textarea.readOnly = true;
+            textarea.value = bewertung.text;
 
-        const textarea = document.createElement('textarea');
-        textarea.className = 'textBewertung';
-        textarea.readOnly = true;
-        textarea.value = bewertung.text;
+            zweiteReihe.appendChild(textarea);
 
-        zweiteReihe.appendChild(textarea);
+            bewertungsDiv.appendChild(ersteReihe);
+            bewertungsDiv.appendChild(zweiteReihe);
 
-        bewertungsDiv.appendChild(ersteReihe);
-        bewertungsDiv.appendChild(zweiteReihe);
-
-        dataGrid.appendChild(bewertungsDiv)
+            dataGrid.appendChild(bewertungsDiv)
+        })
+        adjustTextareaHeight()
     })
-    adjustTextareaHeight()
+    
 }
 
 function adjustTextareaHeight() {
@@ -905,12 +901,12 @@ function bluidToolgrid(){
 
     const suchKundeButton = document.createElement('button')
     suchKundeButton.type = 'button'
-    suchKundeButton.setAttribute('onclick', `getKunde(document.getElementById('kundeSuchInput').value)`)
+    suchKundeButton.onclick = ()=> getKunde(document.getElementById('kundeSuchInput').value)
     suchKundeButton.textContent = 'Suchen'
 
     const addKundeButton = document.createElement('button')
     addKundeButton.type = 'button'
-    addKundeButton.setAttribute('onclick', `addKunde()`)
+    addKundeButton.onclick = ()=> addKunde()
     addKundeButton.textContent = 'Kunde anlegen'
 
     filterBoxKundeDiv.appendChild(kundeH2)
@@ -934,7 +930,7 @@ function bluidToolgrid(){
 
     const suchZimmerButton = document.createElement('button')
     suchZimmerButton.type = 'button'
-    suchZimmerButton.setAttribute('onclick', `getZimmer(document.getElementById('zimmerSuchInput').value)`)
+    suchZimmerButton.onclick = ()=> getZimmer(document.getElementById('zimmerSuchInput').value)
     suchZimmerButton.textContent = 'Suchen'
 
     filterBoxZimmerDiv.appendChild(zimmerH2)
@@ -957,12 +953,12 @@ function bluidToolgrid(){
 
     const suchBuchungButton = document.createElement('button')
     suchBuchungButton.type = 'button'
-    suchBuchungButton.setAttribute('onclick', `getBuchung(document.getElementById('buchungSuchInput').value)`)
+    suchBuchungButton.onclick = ()=> getBuchung(document.getElementById('buchungSuchInput').value)
     suchBuchungButton.textContent = 'Suchen'
 
     const addBuchungButton = document.createElement('button')
     addBuchungButton.type = 'button'
-    addBuchungButton.setAttribute('onclick', `addBuchung()`)
+    addBuchungButton.onclick = ()=> addBuchung()
     addBuchungButton.textContent = 'Buchung anlegen'
 
     filterBoxBuchungDiv.appendChild(BuchungH2)
@@ -982,12 +978,12 @@ function bluidToolgrid(){
 
         const suchOffeneBewertungButton = document.createElement('button')
         suchOffeneBewertungButton.type = 'button'
-        suchOffeneBewertungButton.setAttribute('onclick', 'getBewertungen(true)')
+        suchOffeneBewertungButton.onclick = ()=> getBewertungen(true)
         suchOffeneBewertungButton.textContent = 'Offene Bewertungen'
 
         const suchAlleBewertungButton = document.createElement('button')
         suchAlleBewertungButton.type = 'button'
-        suchAlleBewertungButton.setAttribute('onclick', 'getBewertungen(false)')
+        suchAlleBewertungButton.onclick = ()=> getBewertungen(false)
         suchAlleBewertungButton.textContent = 'Alle Bewertungen'
 
         filterBoxBewertungDiv.appendChild(BewertungH2)

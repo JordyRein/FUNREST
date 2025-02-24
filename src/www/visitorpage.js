@@ -1,14 +1,16 @@
+import { Customer } from "./ClassKunde"
+
 let LoggedInUser
 let firstLoad = false
-let UserLoggedIn = {
-    vorname: "",
-    nachname: "", 
-    strHausnummer: "",
-    plz: 12345,
-    stadt: "",
-    geschlecht: "",
-    gebdatum: new Date()
-}
+// let LoggedInUser = {
+//     vorname: "",
+//     nachname: "", 
+//     strHausnummer: "",
+//     plz: 12345,
+//     stadt: "",
+//     geschlecht: "",
+//     gebdatum: new Date()
+// }
 
 const ArrayZimmer = [
     {id: '1k2j3', name: 'HansWurst', kategorie: 'Premium', betten: 'doppelbett', bild: 'zimmerbild.png', preis: '120'},
@@ -16,6 +18,7 @@ const ArrayZimmer = [
     {id: '8j2k1', name: 'peter', kategorie: 'Luxus', betten: 'doppelbett', bild: 'zimmerbild.png', preis: '190'},
     {id: '9d6j3', name: 'Wolf', kategorie: 'Standard', betten: 'einzelbett', bild: 'zimmerbild.png', preis: '60'}
 ]
+
 const ArrayBewertungen = [
     {
         id: 'kl523',
@@ -148,22 +151,23 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('LoginForm').addEventListener (
             "submit", 
             function (evt) {
-                if(evt.target[0].value === 'asdf' && evt.target[1].value === 'asdf'){
-                    LoggedInUser = evt.target[0].value
+
+                const infoLogin = {name: evt.target[0].value, password: evt.target[1].value}
+                RequestPHP('POST', 'Login.php', (res)=>{if(res != null){
+                    LoggedInUser = res
                     closeForm()
                     userProfileMin()
-                }
+                }}, ()=>{}, infoLogin)
+
                 evt.preventDefault();
         })
     });
 });
 
-
 function openReg(event){
     let blub = event.currentTarget.parentElement.parentElement
     blub.getElementById('divLogin')
 }
-
 
 // Funktion zum Erstellen des Zimmer-Elements
 function createZimmerElement() {
@@ -306,11 +310,11 @@ function createProfileForm() {
     form.id = 'profileForm';
 
     const fields = [
-        { label: 'Vorname:', id: 'firstName', type: 'text', value: UserLoggedIn.vorname },
-        { label: 'Nachname:', id: 'lastName', type: 'text', value: UserLoggedIn.nachname },
-        { label: 'Straße & Hausnummer:', id: 'street', type: 'text', value: UserLoggedIn.strHausnummer },
-        { label: 'PLZ:', id: 'zipCode', type: 'text', pattern: '[0-9]*', value: UserLoggedIn.plz },
-        { label: 'Stadt:', id: 'city', type: 'text', value: UserLoggedIn.stadt }
+        { label: 'Vorname:', id: 'firstName', type: 'text', value: LoggedInUser.vorname },
+        { label: 'Nachname:', id: 'lastName', type: 'text', value: LoggedInUser.nachname },
+        { label: 'Straße & Hausnummer:', id: 'street', type: 'text', value: LoggedInUser.strHausnummer },
+        { label: 'PLZ:', id: 'zipCode', type: 'text', pattern: '[0-9]*', value: LoggedInUser.plz },
+        { label: 'Stadt:', id: 'city', type: 'text', value: LoggedInUser.stadt }
     ];
 
     fields.forEach(field => {
@@ -360,7 +364,7 @@ function createProfileForm() {
     optionElementD.textContent = 'divers';
     genderSelect.appendChild(optionElementD);
    
-    switch (UserLoggedIn.geschlecht) {
+    switch (LoggedInUser.geschlecht) {
         case "männlich":
             optionElementM.defaultSelected = true
             break;
@@ -386,7 +390,7 @@ function createProfileForm() {
     birthDateInput.type = 'date';
     birthDateInput.id = 'birthDate';
     birthDateInput.name = 'birthDate';
-    birthDateInput.value = UserLoggedIn.gebdatum;
+    birthDateInput.value = LoggedInUser.gebdatum;
     birthDateInput.required = true;
     form.appendChild(birthDateInput);
 
@@ -521,27 +525,43 @@ function createBewertungForm(){
         const textInput = document.createElement('input');
         textInput.style.width = '95%'
         textInput.type = 'text';
-        // titleInput.id = ;
         textInput.name = buchung.id + '-text';
         textInput.required = true;
 
         textDiv.appendChild(textInput);
         form.appendChild(textDiv);
 
-        // const textarea = document.createElement('textarea');
-        // textarea.className = 'textBewertung';
-        // textarea.readOnly = true;
-        // textarea.value = bewertung.text;
-
         zweiteReihe.appendChild(form);
+
+        // const speicherButton = document.createElement('button')
+        // speicherButton.setAttribute('onclick', 'saveBewertung()')
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.textContent = 'Speichern';
+        form.appendChild(submitButton);
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+    
+            console.log(this)
+            debugger
+            const sterne = this[0].value
+            const titel = this[1].value
+            const text = this[2].value
+
+            const bewertung =  new Review(-1, LoggedInUser.id, text, titel, sterne, 0)
+    
+            //Hier die Speicherfunktion zur Datenbank
+            RequestPHP('POST', 'Review.php', ()=>{}, ()=>{}, bewertung)
+    
+            alert('Profil erfolgreich angelegt!');
+            clearDataGrid()
+        });
 
         bewertungsDiv.appendChild(ersteReihe);
         bewertungsDiv.appendChild(zweiteReihe);
 
         container.appendChild(bewertungsDiv)
-    })
-    // adjustTextareaHeight()
-    
+    })    
 }
 
 function toggleFilterVisibility(){

@@ -1,8 +1,9 @@
 export class Review{
-    constructor(id, Customer, text, stars, released){
+    constructor(id, customerid, text, titel, stars, released){
       this.ReviewId = id;
-      this.Customer = Customer;
+      this.CustomerId = customerid;
       this.Text = text;
+      this.Titel = titel
       this.Stars = stars;
       this.Released = released;
     }
