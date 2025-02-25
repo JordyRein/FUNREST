@@ -1,3 +1,4 @@
+import { Customer } from "./ClassKunde.js";
 let newZimmer
 let newKunde
 let newBuchungen
@@ -106,16 +107,27 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('LoginForm').addEventListener (
             "submit", 
             function (evt) {
-                for(let i = 0; i < ArrayNutzer.length; i++){
-                    if(evt.target[0].value === ArrayNutzer[i].vorname && evt.target[1].value === ArrayNutzer[i].nachname){
-                        loggedInUser = ArrayNutzer[i]
+                var fd = new FormData(document.getElementById('LoginForm'));
+  
+                RequestPHP("POST", "AdminLogin.php",
+                    (data)=>{
+                        if(data==JSON.stringify("login_err_idpass")){
+                          alert("Id/Pass False");
+                          return;
+                        }
+
+                        loggedInUser=JSON.parse(data);
                         closeLogin()
                         loggedIn = true
-                        break
-                    }
-                    evt.preventDefault();
+                    },
+                    ()=>{
+                    },
+                    fd);
+
+                evt.preventDefault();
                 }
-        })
+            )
+
     }
     
 });
@@ -342,13 +354,21 @@ function changeKundenProfil(idKunde){
             PLZ: this[3].value,
             City: this[4].value,
             Sex: this[5].value,
-            Birthdate: this[6].value
+            Birthdate: this[6].value,
+            Code:"E"
         }
         //Hier die Speicherfunktion zur Datenbank
         console.log('veränderter kunde', newKunde)
-        RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde', ()=>{}, ()=>{}, newKunde)
+        RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde', 
+                  (data)=>{
+                    if(JSON.parse(data)=="ok"){
+                      alert('Profil erfolgreich angelegt!');
+                    }
 
-        alert('Profil erfolgreich angelegt!');
+                  },
+                   ()=>{}, 
+                  JSON.stringify(newKunde))
+
         clearDataGrid()
     });
 
@@ -570,7 +590,8 @@ function addKunde(){
             PLZ: this[3].value,
             City: this[4].value,
             Sex: this[5].value,
-            Birthdate: this[6].value
+            Birthdate: this[6].value,
+            Code:"A"
         }
         //Hier die Speicherfunktion zur Datenbank
         RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde', ()=>{}, ()=>{}, newKunde)
