@@ -187,16 +187,27 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('LoginForm').addEventListener (
             "submit", 
             function (evt) {
-                for(let i = 0; i < ArrayNutzer.length; i++){
-                    if(evt.target[0].value === ArrayNutzer[i].vorname && evt.target[1].value === ArrayNutzer[i].nachname){
-                        loggedInUser = ArrayNutzer[i]
+                var fd = new FormData(document.getElementById('LoginForm'));
+  
+                RequestPHP("POST", "AdminLogin.php",
+                    (data)=>{
+                        if(data==JSON.stringify("login_err_idpass")){
+                          alert("Id/Pass False");
+                          return;
+                        }
+
+                        loggedInUser=JSON.parse(data);
                         closeLogin()
                         loggedIn = true
-                        break
-                    }
-                    evt.preventDefault();
+                    },
+                    ()=>{
+                    },
+                    fd);
+
+                evt.preventDefault();
                 }
-        })
+            )
+
     }
     
 });
