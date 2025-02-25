@@ -188,6 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
             "submit", 
             function (evt) {
                 var fd = new FormData(document.getElementById('LoginForm'));
+                console.log(fd);
   
                 RequestPHP("POST", "AdminLogin.php",
                     (data)=>{
@@ -444,6 +445,9 @@ function changeKundenProfil(idKunde){
                     if(JSON.parse(data)=="ok"){
                       alert('Profil erfolgreich angelegt!');
                     }
+                    else{
+                      alert(data);
+                    }
 
                   },
                    ()=>{}, 
@@ -562,8 +566,8 @@ function addKunde(){
             Sex: sx,
             Birthdate: this[6].value,
             Code:"A",
-            usr:"newthing",
-            pw:"password"
+            usr:"newthingy",
+            pw:"password1234"
         }
         //Hier die Speicherfunktion zur Datenbank
         RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde',

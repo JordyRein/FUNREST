@@ -53,11 +53,13 @@ if(isset($_GET["search"])){
       }
       
       $row=$res->fetch_assoc();
+      /*
       if($row['err']){
         echo json_encode($row['err']);
         exit(1);
       } 
-      echo json_encode("ok");
+       */
+      echo json_encode($row['output']);
       
       break;
 

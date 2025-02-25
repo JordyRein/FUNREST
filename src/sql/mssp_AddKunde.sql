@@ -18,7 +18,7 @@ sp:begin
   
   if exists(select * from LoginDaten
             where Nutzername=usr and Passwort=pw) then
-    select 'IDPASSUsed' as err;
+    select 'IDPASSUsed' as output;
     leave sp;
   end if;
 
@@ -40,6 +40,8 @@ sp:begin
                     Stammgast,
                     LoginId)
   values (fname, lname, addr, plz, loc, sx, bday, 0, @lid);
+
+  select 'ok' as output;
 
 end//
 
