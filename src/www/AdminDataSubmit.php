@@ -41,7 +41,9 @@ if(isset($_GET["search"])){
                 N'$ip->PLZ',
                 N'$ip->City',
                 N'$ip->Sex',
-                N'$ip->Birthdate')";
+                N'$ip->Birthdate',
+                N'$ip->usr',
+                N'$ip->pw')";
       }
       $res = $conn->query($query);
 
@@ -49,6 +51,12 @@ if(isset($_GET["search"])){
         echo json_encode("Error: $conn->error");
         exit(1);
       }
+      
+      $row=$res->fetch_assoc();
+      if($row['err']){
+        echo json_encode($row['err']);
+        exit(1);
+      } 
       echo json_encode("ok");
       
       break;

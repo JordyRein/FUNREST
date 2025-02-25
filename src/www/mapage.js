@@ -551,24 +551,34 @@ function addKunde(){
     form.addEventListener('submit', function(event) {
         event.preventDefault();
 
+        var sx = this[5].value == "weiblich"?"F":this[5].value == "männlich" ? "M" : "D";
         const newKunde = {
-            Id: zuändernderKunde[0].Id,
+            Id: -1,
             FirstName: this[0].value,
             LastName: this[1].value,
             Address: this[2].value,
             PLZ: this[3].value,
             City: this[4].value,
-            Sex: this[5].value,
+            Sex: sx,
             Birthdate: this[6].value,
-            Code:"A"
+            Code:"A",
+            usr:"newthing",
+            pw:"password"
         }
         //Hier die Speicherfunktion zur Datenbank
         RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde',
-                   ()=>{}, 
+                   (data)=>{
+                    if(JSON.parse(data)=="ok"){
+                      alert('Profil erfolgreich angelegt!');
+                    }
+                    else{
+                      alert(data);
+                    }
+                   }, 
                    ()=>{}, 
                    JSON.stringify(newKunde))
 
-        alert('Profil erfolgreich angelegt!');
+        //alert('Profil erfolgreich angelegt!');
         clearDataGrid()
     });
 
