@@ -102,6 +102,10 @@ switch($_GET["req"]){
 
   case "Buchung":
     $s=urldecode($_GET["search"]);
+    $k=-1;
+    if($s != ''){
+      $k = $s;
+    }
 
     $conn=ConnectMySQL();
     if(!$conn instanceof mysqli){
@@ -109,7 +113,7 @@ switch($_GET["req"]){
       break;
     }
 
-    $query = "call mssp_SearchBooking(".$s.")";
+    $query = "call mssp_SearchBooking(".$k.")";
     $res = $conn->query($query);
 
     $i=0;
@@ -121,8 +125,8 @@ switch($_GET["req"]){
           $row['KundeNachname'],
           $row['ZimmerName'],
           $row['BuchungZeitRaum'],
-          $row['Anreise'],
-          $row['Abreise'],
+          $row['Anreisedatum'],
+          $row['Abreisedatum'],
           $row['Preis'],
           $row['PrueferVorname'],
           $row['PrueferNachname']

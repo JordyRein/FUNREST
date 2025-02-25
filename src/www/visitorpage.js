@@ -1,7 +1,9 @@
-import { Customer } from "./ClassKunde"
 
 let LoggedInUser
 let firstLoad = false
+let newArrayZimmer
+let newArrayBuchungenKunde
+let newArrayBewertungenKunde
 // let LoggedInUser = {
 //     vorname: "",
 //     nachname: "", 
@@ -141,7 +143,7 @@ function openProfile(){
 
 document.addEventListener('DOMContentLoaded', function() {
     if(firstLoad === false){
-        createZimmerElement()
+        firstVisit()
         createZimmerFilterMenü()
         firstLoad = true
     }
@@ -151,18 +153,60 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('LoginForm').addEventListener (
             "submit", 
             function (evt) {
-
                 const infoLogin = {name: evt.target[0].value, password: evt.target[1].value}
-                RequestPHP('POST', 'Login.php', (res)=>{if(res != null){
-                    LoggedInUser = res
-                    closeForm()
-                    userProfileMin()
-                }}, ()=>{}, infoLogin)
+                RequestPHP('POST', 'Login.php', 
+                    (res)=>{
+                        if(res != null){
+                            console.log('antwort login?', res)
+                            LoggedInUser = res
+                            closeForm()
+                            userProfileMin()
+                            loadData()
+                        }
+                    }, 
+                    ()=>{}, infoLogin)
 
                 evt.preventDefault();
         })
     });
 });
+
+
+async function firstVisit(){
+    // Array von allen Zimmer des Hotels ohne Filter
+    const url = "AdminSearch.php?req=Zimmer&search="+encodeURIComponent('');
+    await RequestPHPAsync(url, (data)=>{
+        const zimmer = JSON.parse(data)
+        newArrayZimmer = zimmer
+        createZimmerElement()
+    }, ()=>{})
+}
+
+async function getAllZimmer(){
+    const url = "AdminSearch.php?req=Zimmer&search="+encodeURIComponent('');
+    await RequestPHPAsync(url, (data)=>{
+        const zimmer = JSON.parse(data)
+        newArrayZimmer = zimmer
+    }, ()=>{})
+}
+
+
+async function loadData(){
+    // Daten bei Login Laden und auf Variablen abspeichern
+    // Alle Daten des Nutzers.
+    // -> Seine Buchungen, seine Nutzerdaten (sollten ausm Login da sein), seine Bewertungen
+    const urlBuch = "AdminSearch.php?req=Buchung&search="+encodeURIComponent(LoggedInUser.Id);
+    await RequestPHPAsync(urlBuch, (data)=>{
+        const buchung = JSON.parse(data)
+        newArrayBuchungenKunde = buchung
+    }, ()=>{})
+
+    const urlBewe = "Review.php?kunde="+encodeURIComponent(LoggedInUser.Id);
+    await RequestPHPAsync(urlBewe, (data)=>{
+        const bewertung = JSON.parse(data)
+        newArrayBewertungenKunde = bewertung
+    }, ()=>{})
+}
 
 function openReg(event){
     let blub = event.currentTarget.parentElement.parentElement
@@ -178,7 +222,9 @@ function createZimmerElement() {
     zimmerListe.id = 'zimmerListe'
 
     //das ganze was grad druntersteht in die forschleife reinkopieren, sobald man ein Array mit den gefilterten Zimmern aus SQL hat
-    ArrayZimmer.forEach(zimmer =>{
+    newArrayZimmer.forEach(zimmer =>{
+
+        // console.log(zimmer)
 
         const zimmerDiv = document.createElement('div');
         zimmerDiv.className = 'zimmerGrid';
@@ -191,11 +237,11 @@ function createZimmerElement() {
     
         const zimmerÜberschrift1 = document.createElement('p');
         zimmerÜberschrift1.className = 'zimmerÜberschrift';
-        zimmerÜberschrift1.innerText = zimmer.kategorie + ' Zimmer:';
+        zimmerÜberschrift1.innerText = zimmer.Kategorie + ' Zimmer:';
     
         const zimmerÜberschrift2 = document.createElement('p');
         zimmerÜberschrift2.className = 'zimmerÜberschrift';
-        zimmerÜberschrift2.innerText = zimmer.name
+        zimmerÜberschrift2.innerText = zimmer.Name
     
         zimmerHeader.appendChild(zimmerÜberschrift1);
         zimmerHeader.appendChild(zimmerÜberschrift2);
@@ -204,15 +250,15 @@ function createZimmerElement() {
         detailedInfoGrid.className = 'detailedInfoGrid';
     
         const buchenButton = document.createElement('button');
-        buchenButton.id = zimmer.id ;
+        buchenButton.id = zimmer.Name ;
         buchenButton.className = 'buttonBuchung';
         buchenButton.innerText = 'Zimmer jetzt buchen!!';
     
-        const preisWoche = zimmer.preis * 6
+        const preisWoche = zimmer.Preis * 6
         const preisTable = document.createElement('table');
         preisTable.innerHTML = `
             <tr><th>Preis:</th></tr>
-            <tr><td>`+ zimmer.preis +`€/Nacht</td></tr>
+            <tr><td>`+ zimmer.Preis +`€/Nacht</td></tr>
             <tr><td>`+ preisWoche +`€/Woche</td></tr>
         `;
     
@@ -222,7 +268,7 @@ function createZimmerElement() {
         let Außenbereich = ''
         let Bad = ''
         let Extra = ''
-        switch (zimmer.kategorie) {
+        switch (zimmer.Kategorie) {
             case "Standard":
                 Fernseher = '20-Zoll Fernseher'
                 Küche = 'Toaster'
@@ -231,7 +277,7 @@ function createZimmerElement() {
                 Bad = 'Duschwanne'
                 Extra = ' '
                 break;
-            case "Deluxe":
+            case "Premium":
                 Fernseher = '32-Zoll Fernseher'
                 Küche = 'Kochecke'
                 Wohnzimmer = 'Wohnlandschaft'
@@ -275,7 +321,7 @@ function createZimmerElement() {
     
         const img = document.createElement('img');
         img.className = 'genericZimmerBilder';
-        img.src = zimmer.bild
+        img.src = zimmer.Bild
         img.alt = 'Hotelzimmer';
         img.height = 130;
     
@@ -287,8 +333,6 @@ function createZimmerElement() {
     })
 
     content.appendChild(zimmerListe)
-
-    // return zimmerListe
 }
 
 // Funktion zum Erstellen der Profilseite
@@ -299,7 +343,8 @@ function createProfileForm() {
 
     const profilContainer = document.createElement('div');
     profilContainer.id = 'profilContainer';
-    profilContainer.width = '100%'
+    profilContainer.width = '95%'
+    profilContainer.style.backgroundColor = 'lightgray'
 
     const h1 = document.createElement('h1');
     h1.textContent = 'Profil';
@@ -441,6 +486,9 @@ function createBewertungForm(){
         const bewertungsDiv = document.createElement('div')
         bewertungsDiv.className = 'bewertungContainer'
         bewertungsDiv.style.width = '90%'
+        bewertungsDiv.style.backgroundColor = 'beige'
+        bewertungsDiv.style.margin = '10px'
+        bewertungsDiv.style.padding = '5px'
 
         const ersteReihe = document.createElement('div');
         ersteReihe.className = 'ersteReihe';
@@ -616,81 +664,99 @@ function createZimmerFilterMenü(){
     endInput.name = 'date';
     datumsauswahlDiv.appendChild(endInput);
 
-    const submitInput = document.createElement('input');
-    submitInput.type = 'submit';
-    submitInput.value = 'Absenden';
-    datumsauswahlDiv.appendChild(submitInput);
+    const submitButton = document.createElement('button');
+    submitButton.type = 'button';
+    submitButton.textContent = 'Absenden';
+    submitButton.onclick = ()=>selectDaterangeFilter()
+    datumsauswahlDiv.appendChild(submitButton);
 
     container.appendChild(datumsauswahlDiv);
 
     // Dropdown für Kategorieauswahl
-    const kategorieDropdown = document.createElement('div');
-    kategorieDropdown.className = 'dropdown';
+    const kategorieLabel = document.createElement('label');
+    kategorieLabel.setAttribute('for', 'kategorie');
+    kategorieLabel.textContent = 'Kategorieauswahl:';
+    container.appendChild(kategorieLabel);
 
-    const kategorieText = document.createElement('p');
-    kategorieText.textContent = 'Kategorieauswahl treffen:';
-    kategorieDropdown.appendChild(kategorieText);
+    const kategorieSelect = document.createElement('select');
+    kategorieSelect.id = 'kategorie';
+    kategorieSelect.name = 'kategorie';
+    kategorieSelect.required = false;
+   
+    const optionElement0 = document.createElement('option');
+    optionElement0.value = 'Alle';
+    optionElement0.textContent = 'Alle';
+    kategorieSelect.appendChild(optionElement0);
+    const optionElementS = document.createElement('option');
+    optionElementS.value = 'standard';
+    optionElementS.textContent = 'Standard';
+    kategorieSelect.appendChild(optionElementS);
+    const optionElementP = document.createElement('option');
+    optionElementP.value = 'premium';
+    optionElementP.textContent = 'Premium';
+    kategorieSelect.appendChild(optionElementP);
+    const optionElementL = document.createElement('option');
+    optionElementL.value = 'luxus';
+    optionElementL.textContent = 'Luxus';
+    kategorieSelect.appendChild(optionElementL)
 
-    const kategorieButton = document.createElement('button');
-    kategorieButton.className = 'dropbtn';
-    kategorieButton.id = 'raumauswahl';
-    kategorieButton.textContent = 'Alle';
-    kategorieDropdown.appendChild(kategorieButton);
-
-    const kategorieContent = document.createElement('div');
-    kategorieContent.className = 'dropdown-content';
-
-    const kategorieOptions = [
-        { text: 'Standard', value: 'Standard' },
-        { text: 'Premium', value: 'Premium' },
-        { text: 'Luxus', value: 'Luxus' },
-        { text: 'Alle', value: 'Alle' }
-    ];
-
-    kategorieOptions.forEach(option => {
-        const link = document.createElement('a');
-        link.href = '#';
-        link.textContent = option.text;
-        link.setAttribute('onclick', `selectCategorie('${option.value}')`);
-        kategorieContent.appendChild(link);
-    });
-
-    kategorieDropdown.appendChild(kategorieContent);
-    container.appendChild(kategorieDropdown);
+    container.appendChild(kategorieSelect);
 
     // Dropdown für Bettenauswahl
-    const bettenDropdown = document.createElement('div');
-    bettenDropdown.className = 'dropdown';
+    const bettenLabel = document.createElement('label');
+    bettenLabel.setAttribute('for', 'betten');
+    bettenLabel.textContent = 'Bettenauswahl:';
+    container.appendChild(bettenLabel);
 
-    const bettenText = document.createElement('p');
-    bettenText.textContent = 'Bettenauswahl treffen:';
-    bettenDropdown.appendChild(bettenText);
+    const bettenSelect = document.createElement('select');
+    bettenSelect.id = 'betten';
+    bettenSelect.name = 'betten';
+    bettenSelect.required = false;
+   
+    const optionElement = document.createElement('option');
+    optionElement.value = 'Alle';
+    optionElement.textContent = 'Alle';
+    bettenSelect.appendChild(optionElement);
+    const optionElement1 = document.createElement('option');
+    optionElement1.value = 'einzelzimmer';
+    optionElement1.textContent = 'Einzelzimmer';
+    bettenSelect.appendChild(optionElement1);
+    const optionElement2 = document.createElement('option');
+    optionElement2.value = 'doppelzimmer';
+    optionElement2.textContent = 'Doppelzimmer';
+    bettenSelect.appendChild(optionElement2);
 
-    const bettenButton = document.createElement('button');
-    bettenButton.className = 'dropbtn';
-    bettenButton.id = 'bettauswahl';
-    bettenButton.textContent = 'Alle';
-    bettenDropdown.appendChild(bettenButton);
+    container.appendChild(bettenSelect);
 
-    const bettenContent = document.createElement('div');
-    bettenContent.className = 'dropdown-content';
+    const saveFilterButton = document.createElement('button')
+    saveFilterButton.type = 'button'
+    saveFilterButton.onclick = ()=> selectFilter()
+    saveFilterButton.textContent = 'Fitler absenden'
 
-    const bettenOptions = [
-        { text: 'Einzelzimmer', value: 'Einzelzimmer' },
-        { text: 'Doppelzimmer', value: 'Doppelzimmer' },
-        { text: 'Alle', value: 'Alle' }
-    ];
+    container.appendChild(saveFilterButton)
 
-    bettenOptions.forEach(option => {
-        const link = document.createElement('a');
-        link.href = '#';
-        link.textContent = option.text;
-        link.setAttribute('onclick', `selectBetten('${option.value}')`);
-        bettenContent.appendChild(link);
-    });
+}
 
-    bettenDropdown.appendChild(bettenContent);
-    container.appendChild(bettenDropdown);
+function selectFilter(){
+    const dateStart = document.getElementById('dateStart')
+    const dateEnd = document.getElementById('dateEnd')
+    const kategorie = document.getElementById('kategorie')
+    const typ = document.getElementById('betten')
+    console.log(dateStart.value, dateEnd.value, kategorie.value, typ.value)
+
+    updateZimmerArray(dateStart.value, dateEnd.value, kategorie.value, typ.value)
+}
+
+async function updateZimmerArray(dateStart, dateEnd, Kategorie, Typ){
+    const container = document.getElementById('zimmerListe')
+    emptyContainer(container)
+    const url = "KundeSearch.php?req=Zimmer&start="+encodeURIComponent(dateStart)+"&end="+encodeURIComponent(dateEnd)+"&kategorie="+encodeURIComponent(Kategorie)+"&typ="+encodeURIComponent(Typ);
+    await RequestPHPAsync(url, (data)=>{
+        debugger
+        const zimmer = JSON.parse(data)
+        newArrayZimmer = zimmer
+        createZimmerElement()
+    }, ()=>{})
 }
 
 function createProfileFitlerMenü(){
