@@ -1,4 +1,5 @@
 import { Room } from "./ClassZimmer.js";
+import { Customer } from "./ClassKunde.js";
 
 // const ArrayZimmer = [
 //     {name: 'HansWurst', kategorie: 'Premium', betten: 'doppelbett', preis: '120€'},
@@ -422,13 +423,21 @@ function changeKundenProfil(idKunde){
             PLZ: this[3].value,
             City: this[4].value,
             Sex: this[5].value,
-            Birthdate: this[6].value
+            Birthdate: this[6].value,
+            Code:"E"
         }
         //Hier die Speicherfunktion zur Datenbank
         console.log('veränderter kunde', newKunde)
-        RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde', ()=>{}, ()=>{}, newKunde)
+        RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde', 
+                  (data)=>{
+                    if(JSON.parse(data)=="ok"){
+                      alert('Profil erfolgreich angelegt!');
+                    }
 
-        alert('Profil erfolgreich angelegt!');
+                  },
+                   ()=>{}, 
+                  JSON.stringify(newKunde))
+
         clearDataGrid()
     });
 
@@ -539,7 +548,8 @@ function addKunde(){
             PLZ: this[3].value,
             City: this[4].value,
             Sex: this[5].value,
-            Birthdate: this[6].value
+            Birthdate: this[6].value,
+            Code:"A"
         }
         //Hier die Speicherfunktion zur Datenbank
         RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde', ()=>{}, ()=>{}, newKunde)
