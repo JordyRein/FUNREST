@@ -24,7 +24,14 @@ done < $filename
 
 case "${unameOut}" in
   Linux*) 
+    echo "initializing table"
     cat table.sql | mysql -u $usr -p$pass $db 2>/dev/null
+
+    echo "initializing dummy"
+    cat dummy.sql | mysql -u $usr -p$pass $db 2>/dev/null
+  
+    echo "initializing sp"
+    cat mssp_*.sql | mysql -u $usr -p$pass $db 2>/dev/null
 
     echo "mySQL script initialized"
     ;;

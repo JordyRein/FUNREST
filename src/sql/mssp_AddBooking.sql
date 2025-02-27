@@ -11,13 +11,12 @@ create procedure mssp_AddBooking(
   in mid int
 )
 begin
+  set @bzr = (select datediff(abreise, anreise));
 
-  set @bzr = select datediff(abreise, anreise);
-  
-  set @cost = select k.Preis*t.PreisScale from Zimmer z
+  set @cost = (select k.Preis*t.PreisScale from Zimmer z
               join Kategorie k on k.Id=z.KategorieId
               join Typ t on t.Id = z.Typ
-              where z.Id=zid;
+              where z.Id=zid);
 
   insert into Buchung(KundenID, 
                       ZimmerID, 
