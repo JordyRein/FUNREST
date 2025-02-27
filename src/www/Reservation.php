@@ -2,6 +2,7 @@
 
 class Reservation{
   public $BuchungId;
+  public $BewertungsId;
   public $KundeVorname;
   public $KundeNachname;
   public $ZimmerName;
@@ -12,8 +13,9 @@ class Reservation{
   public $MAVorname;
   public $MANachname;
 
-  function __construct($id, $kv, $kn, $zn, $bzr, $anr, $abr, $p, $mav, $man){
+  function __construct($id, $bid, $kv, $kn, $zn, $bzr, $anr, $abr, $p, $mav, $man){
     $this->BuchungId=$id;
+    $this->BewertungsId=$bid;
     $this->KundeVorname=$kv;
     $this->KundeNachname=$kn;
     $this->ZimmerName=$zn;

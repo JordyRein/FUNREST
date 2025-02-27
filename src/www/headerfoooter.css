@@ -29,15 +29,13 @@ header{
     object-fit: cover;
     max-height: 100%;
 }
-.buttonsHeader{
+#buttonsHeader{
+    background-color: pink;
+    border: 2px solid darkgray;
+    border-radius: 10px;
     margin: 10px;
-    height: 130px;
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-#headerButton{
-    height: 100px;
+    justify-content: center;
 }
 
 

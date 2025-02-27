@@ -20,38 +20,16 @@
           <h1 id="hotelname">FUNREST Hotels</h1>
         </div>
         <div id="buttonsHeader">
-          <button id="headerButton" >Login</button>
+          <button id="headerButton" onclick="loginUser()">Login</button>
         </div>
       </div>
     </header>
 
-    <div id="popup" class="popup">
-      <div class="popup-content">
-          <button id="closeButton" onclick="closeForm()">×</button>
-          <form id="LoginForm">
-            
-            <div id="divLogin">
-              <label for="username">Benutzername:</label>
-              <input type="text" id="username" name="username" required>
-              
-              <label for="password">Passwort:</label>
-              <input type="password" id="password" name="password" required>
-              
-              <button type="submit">Login</button>
-            </div>
-              
-            <p>Noch kein Konto?</p>
-            <button type="button" onclick="openReg(event)">Registrieren</button>
-          </form>
-      </div>
-    </div>
-
-    <div id="userMenu"> 
-      
+    <div id="userMenu">  
     </div>
 
     <div id="content">
-      <div id="filterGrid" style="visibility: visible;">
+      <div id="filterGrid">
       </div>
       <div id="contentSpace">
       </div>

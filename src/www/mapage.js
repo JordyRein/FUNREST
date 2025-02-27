@@ -30,20 +30,21 @@ async function fetchBuchungen(suchbegriff){
 }
 
 async function fetchBewertungen(suchbegriff){
-    const url = "Review.php?open="+encodeURIComponent(suchbegriff);
+    const url = "AdminSearch.php?req=Bewertung&open="+encodeURIComponent(suchbegriff);
+    console.log('suchbegriff', suchbegriff)
     await RequestPHPAsync(url, (data)=>{
         const bewertung = JSON.parse(data)
         newBewertungen = bewertung
     }, ()=>{})
 }
 
-async function fetchBuchungenToChange(){
-    const url = "Review.php?open="+encodeURIComponent(suchbegriff);
-    await RequestPHPAsync(url, (data)=>{
-        const buchung = JSON.parse(data)
-        newBuchungChange = buchung
-    }, ()=>{})
-}
+// async function fetchBuchungenToChange(){
+//     const url = "AdminSearch.php?req=Bewertung&open="+encodeURIComponent(suchbegriff);
+//     await RequestPHPAsync(url, (data)=>{
+//         const bewertung = JSON.parse(data)
+//         newBewertungen = bewertung
+//     }, ()=>{})
+// }
 
 
 const ArrayBewertungen = [
@@ -107,8 +108,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('LoginForm').addEventListener (
             "submit", 
             function (evt) {
+                const test = document.getElementById('LoginForm')
                 var fd = new FormData(document.getElementById('LoginForm'));
-  
+                console.log('mafd', fd)
+                debugger
                 RequestPHP("POST", "AdminLogin.php",
                     (data)=>{
                         if(data==JSON.stringify("login_err_idpass")){
@@ -117,6 +120,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
 
                         loggedInUser=JSON.parse(data);
+
+                        console.log('loggedInUser', loggedInUser)
                         closeLogin()
                         loggedIn = true
                     },
@@ -871,6 +876,7 @@ async function addBuchung(){
 }
 
 async function getBewertungen(offene){
+    console.log(offene)
     await fetchBewertungen(offene).then((value)=>{
         console.log(newBewertungen)
         clearDataGrid()
@@ -885,7 +891,7 @@ async function getBewertungen(offene){
             ersteReihe.className = 'ersteReihe';
 
             const nameSpan = document.createElement('span');
-            nameSpan.textContent = bewertung.kunde.nachname + ', ' + bewertung.kunde.vorname;
+            nameSpan.textContent = bewertung.KundeNachname + ', ' + bewertung.KundeVorname;
             nameSpan.className = 'nameSpan';
 
             const checkboxDiv = document.createElement('div');
@@ -893,7 +899,11 @@ async function getBewertungen(offene){
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.className = 'checkboxInput';
-            checkbox.checked = bewertung.freigegeben
+            if(bewertung.Status === "0"){
+                checkbox.checked = false
+            }else{
+                checkbox.checked = true
+            }
             const checkboxLabel = document.createElement('label');
             checkboxLabel.id = bewertung.id;
             checkboxLabel.textContent = 'Freigeben';
@@ -904,7 +914,7 @@ async function getBewertungen(offene){
             checkboxDiv.appendChild(checkboxLabel);
             
             const sterneSpan = document.createElement('span');
-            sterneSpan.textContent = bewertung.sterne + ' von 5 Sternen'
+            sterneSpan.textContent = bewertung.Rating + ' von 5 Sternen'
             sterneSpan.className = 'sterneSpan';
 
             ersteReihe.appendChild(nameSpan);
@@ -917,7 +927,7 @@ async function getBewertungen(offene){
             const textarea = document.createElement('textarea');
             textarea.className = 'textBewertung';
             textarea.readOnly = true;
-            textarea.value = bewertung.text;
+            textarea.value = bewertung.BewertungText;
 
             zweiteReihe.appendChild(textarea);
 
@@ -960,8 +970,8 @@ function clearDataGrid(){
 
 function bluidToolgrid(){
     const toolGrid = document.getElementById('toolGrid') 
-
-    if(loggedInUser.rolle === 'admin'){
+    // console.log()
+    if(loggedInUser.Role === 'Admin'){
         toolGrid.style.gridTemplateColumns = '1fr 1fr 1fr 1fr'
     }else{
         toolGrid.style.gridTemplateColumns = '1fr 1fr 1fr'
@@ -1049,7 +1059,7 @@ function bluidToolgrid(){
 
     toolGrid.appendChild(filterBoxBuchungDiv)
 
-    if(loggedInUser.rolle === 'admin'){
+    if(loggedInUser.Role === 'Admin'){
         const filterBoxBewertungDiv = document.createElement('div')
         filterBoxBewertungDiv.className = 'filterBox'
         filterBoxBewertungDiv.id = 'bewertungFilter'
@@ -1059,12 +1069,12 @@ function bluidToolgrid(){
 
         const suchOffeneBewertungButton = document.createElement('button')
         suchOffeneBewertungButton.type = 'button'
-        suchOffeneBewertungButton.onclick = ()=> getBewertungen(true)
+        suchOffeneBewertungButton.onclick = ()=> getBewertungen('0')
         suchOffeneBewertungButton.textContent = 'Offene Bewertungen'
 
         const suchAlleBewertungButton = document.createElement('button')
         suchAlleBewertungButton.type = 'button'
-        suchAlleBewertungButton.onclick = ()=> getBewertungen(false)
+        suchAlleBewertungButton.onclick = ()=> getBewertungen('-1')
         suchAlleBewertungButton.textContent = 'Alle Bewertungen'
 
         filterBoxBewertungDiv.appendChild(BewertungH2)

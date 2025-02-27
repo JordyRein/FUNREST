@@ -59,7 +59,8 @@ create table Buchung(
   Kosten decimal,
   Anreise date,
   Abreise date,
-  MitarbeiterID int
+  MitarbeiterID int,
+  BewertungID int
 );
 
 create table Bewertung(
@@ -92,7 +93,9 @@ alter table Buchung
   add constraint Buchung_Zimmer foreign key (ZimmerID)
   references Zimmer(Id),
   add constraint Buchung_Mitarbeiter foreign key (MitarbeiterID)
-  references Mitarbeiter(Id);
+  references Mitarbeiter(Id),
+  add constraint Buchung_Bewertung foreign key (BewertungID)
+  references Bewertung(Id);
 
 alter table Bewertung
   add constraint Bewertung_Kunde foreign key (KundenID)
