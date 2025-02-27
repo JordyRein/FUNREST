@@ -1,5 +1,4 @@
 .popup {
-    display: none;
     position: fixed;
     z-index: 1;
     left: 0;
@@ -11,7 +10,7 @@
 
 .popup-content {
     background-color: #fefefe;
-    margin: 15% auto;
+    margin: auto;
     padding: 20px;
     border: 1px solid #888;
     width: 30%;

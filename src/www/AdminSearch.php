@@ -3,6 +3,7 @@
 include "Customer.php";
 include "Reservation.php";
 include "Room.php";
+include "Review.php";
 include "SQLConnection.php";
 
 header("Content-Type: application/json");
@@ -137,6 +138,54 @@ switch($_GET["req"]){
     CloseMySQL($conn);
 
     echo json_encode($list_reserve);
+    break;
+
+  case "Bewertung":
+    $open=urldecode($_GET["open"]);
+    $s=-1;
+    switch(strtolower($open)){
+      case "-1":
+        $s=-1;
+        break;
+      case "0":
+        $s=0;
+        break;
+      case "1":
+        $s=1;
+        break;
+      default:
+        break;
+      }
+
+    $conn=ConnectMySQL();
+    if(!$conn instanceof mysqli){
+      echo json_encode("Something went wrong with database connection\n");
+      break;
+    }
+
+    $query = "call mssp_SearchReview(".$s." )";
+    $res = $conn->query($query);
+
+    $i=0;
+    $list_review=array();
+    foreach ($res as $row){
+      array_push($list_review,new Review(
+          $row['BewertungId'],
+          $row['KundeVorname'],
+          $row['KundeNachname'],
+          $row['PrueferVorname'],
+          $row['PrueferNachname'],
+          $row['Titel'],
+          $row['Rating'],
+          $row['BewertungText'],
+          $row['Status']
+      ));
+
+      ++$i;
+    }
+    CloseMySQL($conn);
+
+    echo json_encode($list_review);
     break;
 
   default:
