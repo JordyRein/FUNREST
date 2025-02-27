@@ -64,13 +64,42 @@ if(isset($_GET["search"])){
       break;
 
     case "Buchung":
-      $s="";
-      if(isset($_POST["RoomId"])){
-        $s=$s.$_POST["RoomId"];
+      $ip = json_decode(file_get_contents("php://input"));
+      
+      if(!isset($ip)){
+        echo json_encode("error no Id");
+        exit(1);
       }
-      if(isset($_POST["StartDate"])){
-        $s=$s.$_POST["StartDate"];
+
+      $conn=ConnectMySQL();
+      if(!$conn instanceof mysqli){
+        echo json_encode("Something went wrong with database connection\n");
+        break;
       }
+
+      $query=";";
+      if($ip->Code == "E"){
+      $query = "call mssp_EditBooking(
+                N'$ip->Birthdate')";
+      }
+      if($ip->Code == "A"){
+      $query = "call mssp_AddBooking(
+                $ip->KID,
+                N'$ip->Zimmer',
+                N'$ip->anreise',
+                N'$ip->abreise',
+                $ip->MID)";
+      }
+      $res = $conn->query($query);
+
+      if($conn->error){
+        echo json_encode("Error: $conn->error");
+        exit(1);
+      }
+      
+      $row=$res->fetch_assoc();
+      echo json_encode($row['output']);
+
       break;
 
   }
