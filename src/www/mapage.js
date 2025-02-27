@@ -141,7 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
             function (evt) {
                 const test = document.getElementById('LoginForm')
                 var fd = new FormData(document.getElementById('LoginForm'));
-                console.log(fd);
   
                 RequestPHP("POST", "AdminLogin.php",
                     (data)=>{
@@ -152,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         loggedInUser=JSON.parse(data);
 
-                        console.log('loggedInUser', loggedInUser)
+                        //console.log('loggedInUser', loggedInUser)
                         closeLogin()
                         loggedIn = true
                     },
@@ -238,7 +237,7 @@ function closeLogin(){
 
 async function getKunde(suchbegriff){
     await fetchKunden(suchbegriff).then((value)=>{
-        console.log(newKunde)
+        //console.log(newKunde)
         clearDataGrid()
         const dataGrid = document.getElementById('dataGrid')
 
