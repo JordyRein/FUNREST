@@ -21,7 +21,7 @@ select b.Id as 'BuchungId',
 join Kunde k on k.Id=b.KundenID
 join Zimmer z on z.Id=b.ZimmerID
 join Mitarbeiter m on m.Id=b.MitarbeiterID
-where b.Id=id;
+where b.Id=id or id=-1;
 
 end//
 
