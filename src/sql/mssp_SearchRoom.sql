@@ -9,7 +9,8 @@ create procedure mssp_SearchRoom(
 )
 begin
 
-select z.Name as 'Name',
+select z.Id as 'Id',
+       z.Name as 'Name',
        k.Name as 'Kategorie', 
        t.Name as 'Typ', 
        z.Bild as 'Bild', 

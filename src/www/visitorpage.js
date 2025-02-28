@@ -25,7 +25,7 @@ function userProfileMin(){
     name.innerText = LoggedInUser.FirstName
     name.style.padding = '5px'
     name.style.justifySelf = 'center'
-    name.style.height = '50px'
+    name.style.height = '35px'
 
     const profile = document.createElement('button')
     profile.innerText = 'Einstellungen'
@@ -291,9 +291,25 @@ function createRegistrierPopup(){
         const geschlecht = this[7].value
         const gebdatum = this[8].value
 
+        const user = {
+            FirstName: vorname,
+            LastName: nachname,
+            Address: strHausnummer,
+            PLZ: plz,
+            Location: stadt,
+            Birthday: gebdatum,
+            Stammgast: 0
+        }
+        console.log(user)
         //Hier die Speicherfunktion zur Datenbank
 
+        //profil erfolgreich angelegt:
+        LoggedInUser = user
         alert('Profil erfolgreich aktualisiert!');
+        const body = document.getElementsByTagName('body');
+        const loginForm = document.getElementById('popup');
+        body[0].removeChild(loginForm)
+        userProfileMin()
     });
 
     registerContentDiv.appendChild(form)
@@ -331,10 +347,6 @@ function login(){
     )
 }
 
-function addKunde(){
-
-}
-
 async function firstVisit(){
     // Array von allen Zimmer des Hotels ohne Filter
     const url = "AdminSearch.php?req=Zimmer&search="+encodeURIComponent('');
@@ -359,12 +371,14 @@ async function loadData(){
     await RequestPHPAsync(urlBuch, (data)=>{
         const buchung = JSON.parse(data)
         newArrayBuchungenKunde = buchung
+        console.log(newArrayBuchungenKunde)
     }, ()=>{})
 
     const urlBewe = "KundeSearch.php?req=Bewertung&kunde="+encodeURIComponent(LoggedInUser.Id);
     await RequestPHPAsync(urlBewe, (data)=>{
         const bewertung = JSON.parse(data)
         newArrayBewertungenKunde = bewertung
+        console.log('bewertungsArrayKunde', newArrayBewertungenKunde)
     }, ()=>{})
 }
 
@@ -404,16 +418,20 @@ function createZimmerElement() {
         const detailedInfoGrid = document.createElement('div');
         detailedInfoGrid.className = 'detailedInfoGrid';
     
+        const preis = parseFloat(zimmer.Preis).toFixed(2)
+
         const buchenButton = document.createElement('button');
         buchenButton.id = zimmer.Name ;
         buchenButton.className = 'buttonBuchung';
         buchenButton.innerText = 'Zimmer jetzt buchen!!';
-    
-        const preisWoche = zimmer.Preis * 6
+        buchenButton.onclick = ()=>zimmerReservieren(zimmer.Id, preis)
+
+        let preisWoche = preis * 6
+        preisWoche = parseFloat(preisWoche).toFixed(2)
         const preisTable = document.createElement('table');
         preisTable.innerHTML = `
             <tr><th>Preis:</th></tr>
-            <tr><td>`+ zimmer.Preis +`€/Nacht</td></tr>
+            <tr><td>`+ preis +`€/Nacht</td></tr>
             <tr><td>`+ preisWoche +`€/Woche</td></tr>
         `;
     
@@ -488,6 +506,54 @@ function createZimmerElement() {
     })
 
     content.appendChild(zimmerListe)
+}
+
+async function zimmerReservieren(zimmerid, zimmerpreis){
+    if(LoggedInUser != undefined){
+        const dateStart = document.getElementById('dateStart')
+        const dateEnd = document.getElementById('dateEnd')
+
+        const start = new Date(dateStart.value);
+        const end = new Date(dateEnd.value);
+        if(isNaN(start.getTime()) || isNaN(end.getTime()) || start > end){
+            alert('bitte reisedatum überdrüfen')
+        }else{
+            const differenzInMs = end - start;
+            const differenzInTagen = differenzInMs / (1000 * 60 * 60 * 24);
+            const anzahlNaechte = differenzInTagen;
+
+            let preis = zimmerpreis * anzahlNaechte
+            if(anzahlNaechte > 7){
+                preis = preis-zimmerpreis
+            }
+            
+            const reservation = {
+                BuchungId: -1,
+                KundenId: LoggedInUser.Id,
+                ZimmerId: zimmerid,
+                Anreise: dateStart.value,
+                Abreise: dateEnd.value,
+                BuchungsZeitraum: anzahlNaechte,
+                Kosten: preis
+            } 
+            console.log('Reservation', reservation)
+
+            RequestPHP('POST', 'KundePost.php?req=BuchungHinzufügen', (data)=>{
+                if (JSON.parse(data)=="ok"){
+                    debugger
+                    alert('Bewertung erfolgreich angelegt!');
+                }
+            }, (error)=>{
+                console.log('rückgabe mit error',error)
+            }, JSON.stringify(reservation))
+
+
+            alert('Aufenthalt gebucht')
+        }
+        
+    }else{
+        alert('bitte zuerst einloggen')
+    }
 }
 
 // Funktion zum Erstellen der Profilseite
@@ -624,152 +690,305 @@ function createBewertungForm(){
     const container = document.getElementById('contentSpace')
     emptyContainer(container)
 
-    newArrayBuchungenKunde.forEach(buchung => {
-        if(new Date(buchung.Abreise) < new Date()){
-            console.log('üder die dates ansich')
-        }
-            const blub = new Date(buchung.Abreise)
-            const blab = new Date()
-        if(blub < blab){
-            console.log('üder die variablen')
-        }
+    const neueBewertungTitelDiv = document.createElement('div')
+    neueBewertungTitelDiv.textContent = 'Bewertungen zu ihren Aufenthalten anlegen:'
+    neueBewertungTitelDiv.style.backgroundColor = 'yellow'
+    neueBewertungTitelDiv.style.width = '95%'
+    container.appendChild(neueBewertungTitelDiv)
 
-        if(buchung.BewertungsId === null && new Date(buchung.Abreise) < new Date()){
+    const container1 = document.createElement('div')
+    container.appendChild(container1)
+
+    const aufenthaltNichtAbgeschlossenTitelDiv = document.createElement('div')
+    aufenthaltNichtAbgeschlossenTitelDiv.textContent = 'Bewertung zu diesem Aufenthalt kann noch nicht angelegt werden:'
+    aufenthaltNichtAbgeschlossenTitelDiv.style.backgroundColor = 'yellow'
+    aufenthaltNichtAbgeschlossenTitelDiv.style.width = '95%'
+    container.appendChild(aufenthaltNichtAbgeschlossenTitelDiv)
+
+    const container2 = document.createElement('div')
+    container.appendChild(container2)
+
+    let counter1 = 0
+    let counter2 = 0
+    if(newArrayBuchungenKunde){
+        newArrayBuchungenKunde.forEach(buchung => {
+            
+            if(buchung.BewertungsId === null && new Date(buchung.Abreise) < new Date()){
+                counter1 = coutner1 + 1
+                //aufenthalt abgeschlossen und bewertung fehlt
+                const bewertungsDiv = document.createElement('div')
+                bewertungsDiv.className = 'bewertungContainer'
+                bewertungsDiv.style.width = '90%'
+                bewertungsDiv.style.backgroundColor = 'beige'
+                bewertungsDiv.style.margin = '10px'
+                bewertungsDiv.style.padding = '5px'
+        
+                const ersteReihe = document.createElement('div');
+                ersteReihe.className = 'ersteReihe';
+        
+                const buchungsInfoSpan = document.createElement('span');
+                buchungsInfoSpan.textContent = 'BuchungsNummer: ' + buchung.BuchungId + '    Aufenthaltszeitraum: '+ buchung.Anreise + ' - ' + buchung.Abreise + '   Zimmer: ' + buchung.ZimmerName
+                buchungsInfoSpan.className = 'buchungsInfo';
+                
+                ersteReihe.appendChild(buchungsInfoSpan);
+        
+                const zweiteReihe = document.createElement('div');
+                zweiteReihe.className = 'zweiteReihe';
+        
+                const form = document.createElement('form');
+                form.id = 'buchungsForm';
+        
+                const sterneLabel = document.createElement('label');
+                sterneLabel.setAttribute('for', 'sterne');
+                sterneLabel.textContent = 'Sternvergabe:';
+                form.appendChild(sterneLabel);
+            
+                const sterneSelect = document.createElement('select');
+                sterneSelect.id = 'sterne';
+                sterneSelect.name = 'sterne';
+                sterneSelect.required = true;
+               
+                const Stern0Element = document.createElement('option');
+                Stern0Element.value = '0';
+                Stern0Element.textContent = '☆ ☆ ☆ ☆ ☆';
+                sterneSelect.appendChild(Stern0Element);
+                const Stern1Element = document.createElement('option');
+                Stern1Element.value = '1';
+                Stern1Element.textContent = '★ ☆ ☆ ☆ ☆';
+                sterneSelect.appendChild(Stern1Element);
+                const Stern2Element = document.createElement('option');
+                Stern2Element.value = '2';
+                Stern2Element.textContent = '★ ★ ☆ ☆ ☆';
+                sterneSelect.appendChild(Stern2Element);
+                const Stern3Element = document.createElement('option');
+                Stern3Element.value = '3';
+                Stern3Element.textContent = '★ ★ ★ ☆ ☆';
+                sterneSelect.appendChild(Stern3Element);
+                const Stern4Element = document.createElement('option');
+                Stern4Element.value = '4';
+                Stern4Element.textContent = '★ ★ ★ ★ ☆';
+                sterneSelect.appendChild(Stern4Element);
+                const Stern5Element = document.createElement('option');
+                Stern5Element.value = '5';
+                Stern5Element.textContent = '★ ★ ★ ★ ★';
+                sterneSelect.appendChild(Stern5Element);
+            
+                form.appendChild(sterneSelect);
+        
+                const titleDiv = document.createElement('div')
+                titleDiv.style.display = 'flex'
+                titleDiv.style.flexDirection = 'row'
+        
+                const titelLabel = document.createElement('label');
+                titelLabel.textContent = 'Titel:'
+                titelLabel.style.width = '100px'
+                titleDiv.appendChild(titelLabel);
+        
+                const titleInput = document.createElement('input');
+                titleInput.style.width = '95%'
+                titleInput.type = 'text';
+                titleInput.name = buchung.BuchungId + '-title';
+                titleInput.required = true;
+        
+                titleDiv.appendChild(titleInput);
+                form.appendChild(titleDiv);
+        
+                const textDiv = document.createElement('div')
+                textDiv.style.display = 'flex'
+                textDiv.style.flexDirection = 'row'
+        
+                const textLabel = document.createElement('label');
+                textLabel.textContent = 'Bewertung: '
+                textLabel.style.width = '100px'
+                textDiv.appendChild(textLabel);
+        
+                const textInput = document.createElement('input');
+                textInput.style.width = '95%'
+                textInput.type = 'text';
+                textInput.name = buchung.BuchungId + '-text';
+                textInput.required = true;
+        
+                textDiv.appendChild(textInput);
+                form.appendChild(textDiv);
+        
+                zweiteReihe.appendChild(form);
+    
+                const submitButton = document.createElement('button');
+                submitButton.type = 'submit';
+                submitButton.textContent = 'Speichern';
+                form.appendChild(submitButton);
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const sterne = this[0].value
+                    const titel = this[1].value
+                    const text = this[2].value
+                    const bId = buchung.BuchungId
+                    
+        
+                    const review = {id: LoggedInUser.Id, rating: sterne, titel: titel, text: text, bId: bId}
+                    console.log(review)
+                    RequestPHP('POST', 'KundePost.php?req=BewertungHinzufügen', (data)=>{
+                        if (JSON.parse(data)=="ok"){
+                            alert('Bewertung erfolgreich angelegt!');
+                        }
+                    }, (error)=>{
+                        console.log('rückgabe mit error',error)
+                    }, JSON.stringify(review))
+            
+                    emptyContainer(container)
+                });
+        
+                bewertungsDiv.appendChild(ersteReihe);
+                bewertungsDiv.appendChild(zweiteReihe);
+        
+                container1.appendChild(bewertungsDiv)
+            }else{
+                if(new Date(buchung.Abreise) > new Date()){
+                    counter2 = counter2 +1
+                    //Aufenthalt noch nicht angeschlossen
+                    const buchungContainer = document.createElement('div');
+                    buchungContainer.textContent = 'BuchungsNummer: ' + buchung.BuchungId + '    Aufenthaltszeitraum: '+ buchung.Anreise + ' - ' + buchung.Abreise + '   Zimmer: ' + buchung.ZimmerName
+                    buchungContainer.className = 'buchungsInfo';
+                    buchungContainer.style.width = '90%'
+                    buchungContainer.style.border = '2px solid darkgray'
+                    buchungContainer.style.marginBottom = '10px'
+                    buchungContainer.style.backgroundColor = 'beige'
+    
+                    // container.appendChild(buchungContainer)
+                    container2.appendChild(buchungContainer)
+                }
+            }
+        })   
+    }else{
+        const fehlerDiv = document.createElement('div')
+        fehlerDiv.innerText = 'Noch keine Daten verfügbar'
+        fehlerDiv.style.height = '30px'
+        fehlerDiv.style.backgroundColor = 'red'
+        container1.appendChild(fehlerDiv)
+    }
+    if(counter1 === 0){
+        const fehlerDiv = document.createElement('div')
+        fehlerDiv.innerText = 'es Können keine Aufenthalte bewertet werden'
+        fehlerDiv.style.height = '30px'
+        fehlerDiv.style.backgroundColor = 'red'
+        container1.appendChild(fehlerDiv)
+    }
+    if(counter2 === 0){
+        const fehlerDiv = document.createElement('div')
+        fehlerDiv.innerText = 'Keine zukünftigen Aufenthalte gebucht'
+        fehlerDiv.style.height = '30px'
+        fehlerDiv.style.backgroundColor = 'red'
+        container1.appendChild(fehlerDiv)
+    }
+    
+
+    const gibtBewertungZuAufenthaltTitelDiv = document.createElement('div')
+    gibtBewertungZuAufenthaltTitelDiv.textContent = 'abgegebene Bewertungen:'
+    gibtBewertungZuAufenthaltTitelDiv.style.backgroundColor = 'yellow'
+    gibtBewertungZuAufenthaltTitelDiv.style.width = '95%'
+    container.appendChild(gibtBewertungZuAufenthaltTitelDiv)
+    
+    // aufenthalt abgeschlossen und bewertung gibt es schon
+    if(newArrayBewertungenKunde){
+        newArrayBewertungenKunde.forEach(bewertung =>{
             const bewertungsDiv = document.createElement('div')
             bewertungsDiv.className = 'bewertungContainer'
             bewertungsDiv.style.width = '90%'
+            bewertungsDiv.style.border = '2px solid darkgray'
+            bewertungsDiv.style.marginBottom = '10px'
             bewertungsDiv.style.backgroundColor = 'beige'
-            bewertungsDiv.style.margin = '10px'
-            bewertungsDiv.style.padding = '5px'
     
             const ersteReihe = document.createElement('div');
             ersteReihe.className = 'ersteReihe';
     
-            const buchungsInfoSpan = document.createElement('span');
-            buchungsInfoSpan.textContent = 'BuchungsNummer: ' + buchung.BuchungId + '    Aufenthaltszeitraum: '+ buchung.Anreise + ' - ' + buchung.Abreise + '   Zimmer: ' + buchung.ZimmerName
-            buchungsInfoSpan.className = 'buchungsInfo';
+            const buchungInfoSpan = document.createElement('span');
+            buchungInfoSpan.textContent = 'Aufenthaltsbewertung für: '+bewertung.Zimmername + ' von ' + bewertung.Anreise + ' - ' + bewertung.Abreise;
+            buchungInfoSpan.className = 'nameSpan';
             
-            ersteReihe.appendChild(buchungsInfoSpan);
+            const sterneSpan = document.createElement('span');
+            sterneSpan.textContent = 'mit einer Bewertung von '+ bewertung.Rating + ' von 5 Sternen'
+            sterneSpan.className = 'sterneSpan';
+    
+            ersteReihe.appendChild(buchungInfoSpan);
+            ersteReihe.appendChild(sterneSpan);
     
             const zweiteReihe = document.createElement('div');
             zweiteReihe.className = 'zweiteReihe';
     
-            const form = document.createElement('form');
-            form.id = 'buchungsForm';
+            const titelTextarea = document.createElement('textarea');
+            titelTextarea.className = 'textBewertung';
+            titelTextarea.readOnly = true;
+            titelTextarea.value = bewertung.Titel;
+            titelTextarea.style.width = '200px'
     
-            const sterneLabel = document.createElement('label');
-            sterneLabel.setAttribute('for', 'sterne');
-            sterneLabel.textContent = 'Sternvergabe:';
-            form.appendChild(sterneLabel);
-        
-            const sterneSelect = document.createElement('select');
-            sterneSelect.id = 'sterne';
-            sterneSelect.name = 'sterne';
-            sterneSelect.required = true;
-           
-            const Stern0Element = document.createElement('option');
-            Stern0Element.value = '0';
-            Stern0Element.textContent = '☆ ☆ ☆ ☆ ☆';
-            sterneSelect.appendChild(Stern0Element);
-            const Stern1Element = document.createElement('option');
-            Stern1Element.value = '1';
-            Stern1Element.textContent = '★ ☆ ☆ ☆ ☆';
-            sterneSelect.appendChild(Stern1Element);
-            const Stern2Element = document.createElement('option');
-            Stern2Element.value = '2';
-            Stern2Element.textContent = '★ ★ ☆ ☆ ☆';
-            sterneSelect.appendChild(Stern2Element);
-            const Stern3Element = document.createElement('option');
-            Stern3Element.value = '3';
-            Stern3Element.textContent = '★ ★ ★ ☆ ☆';
-            sterneSelect.appendChild(Stern3Element);
-            const Stern4Element = document.createElement('option');
-            Stern4Element.value = '4';
-            Stern4Element.textContent = '★ ★ ★ ★ ☆';
-            sterneSelect.appendChild(Stern4Element);
-            const Stern5Element = document.createElement('option');
-            Stern5Element.value = '5';
-            Stern5Element.textContent = '★ ★ ★ ★ ★';
-            sterneSelect.appendChild(Stern5Element);
-        
-            form.appendChild(sterneSelect);
+            const textTextarea = document.createElement('textarea');
+            textTextarea.className = 'textBewertung';
+            textTextarea.readOnly = true;
+            textTextarea.value = bewertung.BewertungText;
+            textTextarea.style.width = '90%'
     
-            const titleDiv = document.createElement('div')
-            titleDiv.style.display = 'flex'
-            titleDiv.style.flexDirection = 'row'
-    
-            const titelLabel = document.createElement('label');
-            titelLabel.textContent = 'Titel:'
-            titelLabel.style.width = '100px'
-            titleDiv.appendChild(titelLabel);
-    
-            const titleInput = document.createElement('input');
-            titleInput.style.width = '95%'
-            titleInput.type = 'text';
-            titleInput.name = buchung.BuchungId + '-title';
-            titleInput.required = true;
-    
-            titleDiv.appendChild(titleInput);
-            form.appendChild(titleDiv);
-    
-            const textDiv = document.createElement('div')
-            textDiv.style.display = 'flex'
-            textDiv.style.flexDirection = 'row'
-    
-            const textLabel = document.createElement('label');
-            textLabel.textContent = 'Bewertung: '
-            textLabel.style.width = '100px'
-            textDiv.appendChild(textLabel);
-    
-            const textInput = document.createElement('input');
-            textInput.style.width = '95%'
-            textInput.type = 'text';
-            textInput.name = buchung.BuchungId + '-text';
-            textInput.required = true;
-    
-            textDiv.appendChild(textInput);
-            form.appendChild(textDiv);
-    
-            zweiteReihe.appendChild(form);
-
-            const submitButton = document.createElement('button');
-            submitButton.type = 'submit';
-            submitButton.textContent = 'Speichern';
-            form.appendChild(submitButton);
-            form.addEventListener('submit', function(event) {
-                event.preventDefault();
-                const sterne = this[0].value
-                const titel = this[1].value
-                const text = this[2].value
-                const bId = buchung.BuchungId
-                
-    
-                const review = {id: LoggedInUser.Id, rating: sterne, titel: titel, text: text, bId: bId}
-                console.log(review)
-                RequestPHP('POST', 'KundePost.php', (data)=>{
-                    if (JSON.parse(data)=="ok"){
-                        alert('Bewertung erfolgreich angelegt!');
-                    }
-                }, (error)=>{
-                    console.log('rückgabe mit error',error)
-                }, JSON.stringify(review))
-        
-                emptyContainer(container)
-            });
+            zweiteReihe.appendChild(titelTextarea);
+            zweiteReihe.appendChild(textTextarea);
     
             bewertungsDiv.appendChild(ersteReihe);
             bewertungsDiv.appendChild(zweiteReihe);
     
             container.appendChild(bewertungsDiv)
-        }
-    })    
+        }) 
+    }else{
+        const fehlerDiv = document.createElement('div')
+        fehlerDiv.innerText = 'noch keine Bewertungen abgegeben'
+        fehlerDiv.style.height = '30px'
+        fehlerDiv.style.backgroundColor = 'red'
+        container.appendChild(fehlerDiv)
+    }
+   
+}
+
+function createBuchungenAnsicht(){
+    console.log(newArrayBuchungenKunde)
+    const container = document.getElementById('contentSpace')
+    emptyContainer(container)
+
+    const zukunftDiv = document.createElement('div')
+    zukunftDiv.textContent = 'Ihre anstehenden Aufenthalte:'
+    zukunftDiv.style.backgroundColor = 'yellow'
+    zukunftDiv.style.width = '95%'
+    let zukünftigeBuchungen = newArrayBuchungenKunde.filter(buchung => new Date(buchung.Anreise) > new Date())
+    zukünftigeBuchungen.forEach(buchung => {
+
+        const buchungContainer = document.createElement('div');
+        buchungContainer.textContent = 'BuchungsNummer: ' + buchung.BuchungId + '    Aufenthaltszeitraum: '+ buchung.Anreise + ' - ' + buchung.Abreise + '   Zimmer: ' + buchung.ZimmerName
+        buchungContainer.className = 'buchungsInfo';
+
+        zukunftDiv.appendChild(buchungContainer)
+    })
+    container.appendChild(zukunftDiv)
+
+    const vergangenDiv = document.createElement('div')
+    vergangenDiv.textContent = 'Ihre vergangenen Buchungen:'
+    vergangenDiv.style.backgroundColor = 'yellow'
+    vergangenDiv.style.width = '95%'
+    let vergangeneBuchungen = newArrayBuchungenKunde.filter(buchung => new Date(buchung.Abreise) < new Date())
+    vergangeneBuchungen.forEach(buchung => {
+        const buchungContainer = document.createElement('div');
+        buchungContainer.textContent = 'BuchungsNummer: ' + buchung.BuchungId + '    Aufenthaltszeitraum: '+ buchung.Anreise + ' - ' + buchung.Abreise + '   Zimmer: ' + buchung.ZimmerName
+        buchungContainer.className = 'buchungsInfo';
+
+        vergangenDiv.appendChild(buchungContainer)
+    })
+    container.appendChild(vergangenDiv)
+    
+    
 }
 
 function backToSearch(){
     const content = document.getElementById('contentSpace')
-    content.removeChild(document.getElementById('profilContainer'))
+    emptyContainer(content)
+    const filterGrid = document.getElementById('filterGrid')
+    emptyContainer(filterGrid)
+    createZimmerFilterMenü()
     createZimmerElement()
-    // toggleFilterVisibility()
 }
 
 function createZimmerFilterMenü(){
@@ -907,6 +1126,12 @@ function createProfileFitlerMenü(){
     backButton.setAttribute('onclick', 'backToSearch()')
 
     container.appendChild(backButton)
+
+    const buttonBuchungen = document. createElement('button')
+    buttonBuchungen.textContent = 'Alle meine Buchungen'
+    buttonBuchungen.setAttribute('onclick', 'createBuchungenAnsicht()')
+
+    container.appendChild(buttonBuchungen)
 
     const buttonProfile = document. createElement('button')
     buttonProfile.textContent = 'Profil bearbeiten'

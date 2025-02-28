@@ -3,6 +3,7 @@
 include "Customer.php";
 include "Reservation.php";
 include "Room.php";
+include 'ReviewKunde.php';
 include "SQLConnection.php";
 
 header("Content-Type: application/json");
@@ -60,6 +61,7 @@ switch($_GET["req"]){
         $list_room=array();
         foreach ($res as $row){
             array_push($list_room,new Room(
+                $row['Id'],
                 $row['Name'],
                 $row['Kategorie'],
                 $row['Typ'],
@@ -76,38 +78,36 @@ switch($_GET["req"]){
         break;
     
     case "Bewertung":
-        // $kundeId=urldecode($_GET["kunde"]);
+        $kundeId=urldecode($_GET["kunde"]);
 
-        // $conn=ConnectMySQL();
-        // if(!$conn instanceof mysqli){
-        //     echo json_encode("Something went wrong with database connection\n");
-        //     break;
-        // }
+        $conn=ConnectMySQL();
+        if(!$conn instanceof mysqli){
+            echo json_encode("Something went wrong with database connection\n");
+            break;
+        }
 
-        // $query = "call mssp_SearchReviewsKunde($kundeId)";
-        // $res = $conn->query($query);
+        $query = "call mssp_SearchReviewKunde($kundeId)";
+        $res = $conn->query($query);
 
-        // $i=0;
-        // $list_reserve=array();
-        // foreach ($res as $row){
-        // array_push($list_reserve,new Reservation(
-        //     $row['BuchungId'],
-        //     $row['KundeVorname'],
-        //     $row['KundeNachname'],
-        //     $row['ZimmerName'],
-        //     $row['BuchungZeitRaum'],
-        //     $row['Anreisedatum'],
-        //     $row['Abreisedatum'],
-        //     $row['Preis'],
-        //     $row['PrueferVorname'],
-        //     $row['PrueferNachname']
-        // ));
+        $i=0;
+        $list_review=array();
+        foreach ($res as $row){
+        array_push($list_review,new ReviewKunde(
+            $row['BewertungId'],
+            $row['Titel'],
+            $row['Rating'],
+            $row['BewertungText'],
+            $row['Status'],
+            $row['Anreise'],
+            $row['Abreise'],
+            $row['Zimmername']
+        ));
 
-        // ++$i;
-        // }
-        // CloseMySQL($conn);
+        ++$i;
+        }
+        CloseMySQL($conn);
 
-        // echo json_encode($list_reserve);
+        echo json_encode($list_review);
         break;
 
     case "Buchung":
@@ -135,8 +135,8 @@ switch($_GET["req"]){
             $row['Anreisedatum'],
             $row['Abreisedatum'],
             $row['Preis'],
-            $row['PrueferVorname'],
-            $row['PrueferNachname']
+            null,
+            null
         ));
 
         ++$i;

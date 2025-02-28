@@ -87,6 +87,7 @@ switch($_GET["req"]){
     $list_room=array();
     foreach ($res as $row){
       array_push($list_room,new Room(
+          $row['Id'],
           $row['Name'],
           $row['Kategorie'],
           $row['Typ'],
