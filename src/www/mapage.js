@@ -12,7 +12,7 @@ let newZimmer
 let newKunde
 let newBuchungen
 let newBewertungen
-let newBuchungChange
+//let newBuchungChange
 
 async function fetchZimmer(suchbegriff){
     const url = "AdminSearch.php?req=Zimmer&search="+encodeURIComponent(suchbegriff);
@@ -382,114 +382,128 @@ function changeKundenProfil(idKunde){
 }
 
 async function changeBuchung(id){
-    console.log(idKunde)
     clearDataGrid()
+    //console.log(newBuchungen);
 
-    await fetchBuchungenToChange().then((value)=>{
-        console.log('newBuchungtoChange', newBuchungChange)
+    let newBuchungChange = newBuchungen[0];
+
+    console.log('newBuchungtoChange', newBuchungChange)
+    clearDataGrid()
+    const dataGrid = document.getElementById('dataGrid')
+
+    const form = document.createElement('form');
+    form.id = 'buchungForm';
+
+    console.log(newBuchungChange.KundeVorname);
+    const fields = [
+        {  label: 'Kunde Vorname:',
+           id: 'firstName', 
+           type: 'text', 
+           value: newBuchungChange.KundeVorname
+        },
+        { label: 'Kunde Nachname:', 
+          id: 'lastName', 
+          type: 'text', 
+          value: newBuchungChange.KundeNachname
+        }
+    ];
+
+    fields.forEach(field => {
+        const label = document.createElement('label');
+        label.setAttribute('for', field.id);
+        label.textContent = field.label;
+        form.appendChild(label);
+
+        const input = document.createElement('input');
+        input.type = field.type;
+        input.id = field.id;
+        input.name = field.id;
+        input.value = field.value;
+        input.required = true;
+        if (field.pattern) input.pattern = field.pattern;
+        form.appendChild(input);
+    });
+
+    // Zimmer
+    const zimmerLabel = document.createElement('label');
+    zimmerLabel.setAttribute('for', 'zimmer');
+    zimmerLabel.textContent = 'Zimmer:';
+    form.appendChild(zimmerLabel);
+
+    const zimmerSelect = document.createElement('select');
+    zimmerSelect.id = 'zimmer';
+    zimmerSelect.name = 'zimmer';
+    zimmerSelect.required = true;
+
+    await fetchZimmer().then(()=>{
+    console.log(newZimmer);
+    newZimmer.forEach(zimmer =>{
+        const optionZimmer = document.createElement('option');
+        optionZimmer.value = zimmer.Name;
+        optionZimmer.textContent = zimmer.Kategorie + ': ' + zimmer.Name;
+        zimmerSelect.appendChild(optionZimmer);
+    });
+    zimmerSelect.value = newBuchungChange.ZimmerName;
+    form.appendChild(zimmerSelect);
+
+    });
+
+    // Anreisedatum
+    const anreisedatumLabel = document.createElement('label');
+    anreisedatumLabel.setAttribute('for', 'anreisedatum');
+    anreisedatumLabel.textContent = 'anreisedatum:';
+    form.appendChild(anreisedatumLabel);
+
+    const anreisedatumInput = document.createElement('input');
+    anreisedatumInput.type = 'date';
+    anreisedatumInput.id = 'anreiseDate';
+    anreisedatumInput.name = 'anreiseDate';
+    anreisedatumInput.value = newBuchungChange.Anreise
+    anreisedatumInput.required = true;
+    form.appendChild(anreisedatumInput);
+
+    // Anreisedatum
+    const abreisedatumLabel = document.createElement('label');
+    abreisedatumLabel.setAttribute('for', 'abreisedatum');
+    abreisedatumLabel.textContent = 'abreisedatum:';
+    form.appendChild(abreisedatumLabel);
+
+    const abreisedatumInput = document.createElement('input');
+    abreisedatumInput.type = 'date';
+    abreisedatumInput.id = 'abreiseDate';
+    abreisedatumInput.name = 'abreiseDate';
+    abreisedatumInput.value = newBuchungChange.Abreise
+    abreisedatumInput.required = true;
+    form.appendChild(abreisedatumInput);
+
+    // Submit Button
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = 'erstellen der Buchung';
+    form.appendChild(submitButton);
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        console.log(event)
+
+        const newBuchung = {
+            Id: -1,
+            FirstName: this[0].value,
+            LastName: this[1].value,
+            Zimmer: this[2].value,
+            anreise: this[3].value,
+            abreise: this[4].value,
+        }
+
+        console.log('newBuchung', newBuchung)
+        //Hier die Speicherfunktion zur Datenbank
+        RequestPHP('POST', 'AdminDataSubmit.php?search=Buchung', ()=>{}, ()=>{}, newBuchung)
+
+        alert('Buchung erfolgreich angelegt!');
         clearDataGrid()
-        const dataGrid = document.getElementById('dataGrid')
+    });
 
-        const form = document.createElement('form');
-        form.id = 'buchungForm';
-
-        const fields = [
-            { label: 'Kunde Vorname:', id: 'firstName', type: 'text', value: newBuchungChange.FirstName},
-            { label: 'Kunde Nachname:', id: 'lastName', type: 'text', value: newBuchungChange.LastName}
-        ];
-
-        fields.forEach(field => {
-            const label = document.createElement('label');
-            label.setAttribute('for', field.id);
-            label.textContent = field.label;
-            form.appendChild(label);
-
-            const input = document.createElement('input');
-            input.type = field.type;
-            input.id = field.id;
-            input.name = field.id;
-            input.required = true;
-            if (field.pattern) input.pattern = field.pattern;
-            form.appendChild(input);
-        });
-
-        // Zimmer
-        const zimmerLabel = document.createElement('label');
-        zimmerLabel.setAttribute('for', 'zimmer');
-        zimmerLabel.textContent = 'Zimmer:';
-        form.appendChild(zimmerLabel);
-
-        const zimmerSelect = document.createElement('select');
-        zimmerSelect.id = 'zimmer';
-        zimmerSelect.name = 'zimmer';
-        zimmerSelect.required = true;
-    
-        newBuchungChange.Zimmer.forEach(zimmer =>{
-            const optionZimmer = document.createElement('option');
-            optionZimmer.value = zimmer.Name;
-            optionZimmer.textContent = zimmer.Kategorie + ': ' + zimmer.Name;
-            zimmerSelect.appendChild(optionZimmer);
-        })
-
-        form.appendChild(zimmerSelect);
-
-        // Anreisedatum
-        const anreisedatumLabel = document.createElement('label');
-        anreisedatumLabel.setAttribute('for', 'anreisedatum');
-        anreisedatumLabel.textContent = 'anreisedatum:';
-        form.appendChild(anreisedatumLabel);
-
-        const anreisedatumInput = document.createElement('input');
-        anreisedatumInput.type = 'date';
-        anreisedatumInput.id = 'anreiseDate';
-        anreisedatumInput.name = 'anreiseDate';
-        anreisedatumInput.value = newBuchungChange.Anreise
-        anreisedatumInput.required = true;
-        form.appendChild(anreisedatumInput);
-
-        // Anreisedatum
-        const abreisedatumLabel = document.createElement('label');
-        abreisedatumLabel.setAttribute('for', 'abreisedatum');
-        abreisedatumLabel.textContent = 'abreisedatum:';
-        form.appendChild(abreisedatumLabel);
-
-        const abreisedatumInput = document.createElement('input');
-        abreisedatumInput.type = 'date';
-        abreisedatumInput.id = 'abreiseDate';
-        abreisedatumInput.name = 'abreiseDate';
-        abreisedatumInput.value = newBuchungChange.Abreise
-        abreisedatumInput.required = true;
-        form.appendChild(abreisedatumInput);
-
-        // Submit Button
-        const submitButton = document.createElement('button');
-        submitButton.type = 'submit';
-        submitButton.textContent = 'erstellen der Buchung';
-        form.appendChild(submitButton);
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            console.log(event)
-
-            const newBuchung = {
-                Id: -1,
-                FirstName: this[0].value,
-                LastName: this[1].value,
-                Zimmer: this[2].value,
-                anreise: this[3].value,
-                abreise: this[4].value,
-            }
-
-            console.log('newBuchung', newBuchung)
-            //Hier die Speicherfunktion zur Datenbank
-            RequestPHP('POST', 'AdminDataSubmit.php?search=Buchung', ()=>{}, ()=>{}, newBuchung)
-
-            alert('Buchung erfolgreich angelegt!');
-            clearDataGrid()
-        });
-
-        dataGrid.appendChild(form);
-    })
+    dataGrid.appendChild(form);
 }
 
 function formatDateForInput(date) {
@@ -716,7 +730,7 @@ async function getZimmer(suchbegriff){
 
 async function getBuchung(suchbegriff){
     await fetchBuchungen(suchbegriff).then((value)=>{
-        console.log(newBuchungen)
+        //console.log(newBuchungen)
         clearDataGrid()
 
         const dataGrid = document.getElementById('dataGrid')

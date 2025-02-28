@@ -79,9 +79,9 @@ if(isset($_GET["search"])){
 
       $query=";";
       if($ip->Code == "E"){
-      $query = "call mssp_EditBooking(
-                N'$ip->Birthdate')";
-      }
+      //$query = "call mssp_EditBooking(
+                //N'$ip->Birthdate')";
+      //}
       if($ip->Code == "A"){
       $query = "call mssp_AddBooking(
                 $ip->KID,

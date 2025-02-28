@@ -9,6 +9,7 @@ create procedure mssp_SearchBooking(
 begin
 
 select b.Id as 'BuchungId', 
+       k.Id as 'KundeId',
        k.Vorname as 'KundeVorname', 
        k.Nachname as 'KundeNachname',
        z.Name as 'ZimmerName', 
