@@ -123,6 +123,8 @@ switch($_GET["req"]){
     foreach ($res as $row){
       array_push($list_reserve,new Reservation(
           $row['BuchungId'],
+          $row['BewertungsId'],
+          $row['KundeId'],
           $row['KundeVorname'],
           $row['KundeNachname'],
           $row['ZimmerName'],

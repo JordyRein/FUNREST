@@ -3,7 +3,7 @@ drop procedure if exists mssp_Register;
 
 delimiter //
 
-create procedure mssp_CheckLogin(
+create procedure mssp_Register(
 )
 begin
 

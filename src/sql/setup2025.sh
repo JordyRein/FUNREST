@@ -1,23 +1,43 @@
 #!/bin/bash
 
-usr="schueler"
-pass="1234"
-db="FUNREST"
-
 unameOut="$(uname -s)"
 echo "Current OS:${unameOut}"
 
 echo "Initiating mySQL script"
 
+echo "reading config data"
+
+filename="config.txt"
+
+usr=""
+pass=""
+
+db="FUNREST"
+
+while mapfile -t -n 2 ip && ((${#ip[@]}));
+do
+  IFS='=' read -ra u <<< ${ip[0]}
+  usr=${u[1]}
+  IFS='=' read -ra p <<< ${ip[1]}
+  pass=${p[1]}
+done < $filename
+
 case "${unameOut}" in
   Linux*) 
+    echo "initializing table"
+    cat table.sql | mysql -u $usr -p$pass $db 2>/dev/null
 
-    cat table.sql | mysql -u $usr -p$pass $db
+    echo "initializing dummy"
+    cat dummy.sql | mysql -u $usr -p$pass $db 2>/dev/null
+  
+    echo "initializing sp"
+    cat mssp_*.sql | mysql -u $usr -p$pass $db 2>/dev/null
 
     echo "mySQL script initialized"
     ;;
   MINGW*) 
-    machine=MinGw
+
+    echo "mySQL script initialized"
     ;;
   *)     
     machine="Unknown Machine:${unameOut}"
