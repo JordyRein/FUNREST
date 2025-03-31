@@ -2,12 +2,18 @@
 
 include "SQLConnection.php";
 include "Mitarbeiter.php";
+include "JWTManager.php";
 
 ini_set("display_errors", "1");
 
 header("Content-Type: application/json");
 
+$geheimnis = "secret";
+
 if(isset($_POST["username"]) and $_POST["password"]){
+
+  $jwtManager = new JWTManager($geheimnis);
+
   $conn=ConnectMySQL();
 
   if(!$conn instanceof mysqli){
@@ -27,10 +33,11 @@ if(isset($_POST["username"]) and $_POST["password"]){
   $ma = new Mitarbeiter($row['Id'],$row['Vorname'], $row['Nachname'], $row['Rolle']);
 
   CloseMySQL($conn);
-  
+
   
   header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
-  echo json_encode($ma);
+  //echo json_encode($ma);
+  echo $jwtManager->createToken(json_encode($ma));
 }
 
 

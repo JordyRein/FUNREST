@@ -109,6 +109,12 @@ document.addEventListener('DOMContentLoaded', function() {
             function (evt) {
                 const test = document.getElementById('LoginForm')
                 var fd = new FormData(document.getElementById('LoginForm'));
+
+                //for security password should be hashed before sent to backend
+                //simpleHash(fd.get(password))
+                //          .then(val=>{ 
+                //              fd.set("password", val);
+                //          });
   
                 RequestPHP("POST", "AdminLogin.php",
                     (data)=>{
@@ -117,7 +123,10 @@ document.addEventListener('DOMContentLoaded', function() {
                           return;
                         }
 
-                        loggedInUser=JSON.parse(data);
+                        const d = atob(data.split('.')[0]);
+                        localStorage.setItem("token",data);
+
+                        loggedInUser=JSON.parse(d);
 
                         //console.log('loggedInUser', loggedInUser)
                         closeLogin()
@@ -830,7 +839,7 @@ function createReceipt(buchung){
 
 async function addBuchung(){
     await fetchZimmer("").then((value)=>{
-        console.log('newZimmer', newZimmer)
+        //console.log('newZimmer', newZimmer)
         clearDataGrid()
         const dataGrid = document.getElementById('dataGrid')
 
