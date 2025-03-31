@@ -479,7 +479,7 @@ async function changeBuchung(id){
     // Submit Button
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
-    submitButton.textContent = 'erstellen der Buchung';
+    submitButton.textContent = 'Edit Buchung';
     form.appendChild(submitButton);
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -786,6 +786,12 @@ async function getBuchung(suchbegriff){
             button.onclick = ()=> changeBuchung(rowData.BuchungId)
             row.appendChild(button)
 
+            const buttonR = document.createElement('button');
+            buttonR.id = rowData.BuchungId;
+            buttonR.textContent = 'Rechnung';
+            buttonR.onclick = ()=> createReceipt(rowData);
+            row.appendChild(buttonR);
+
             tbody.appendChild(row);
         });
         table.appendChild(tbody);
@@ -794,6 +800,31 @@ async function getBuchung(suchbegriff){
         dataGrid.appendChild(table);
     })
         
+
+}
+
+function createReceipt(buchung){
+  console.log(buchung);
+  const receipt = window.open("","","height=600, width=800");
+  const content = 
+    "<h1> FUNREST </h1>" + 
+    "Vorname = " + buchung.KundeVorname + "<br>" +
+    "Nachname = " + buchung.KundeNachname + "<br>" +
+    "ZimmerName = " + buchung.ZimmerName + "<br>" +
+    "Preis = " + buchung.Preis * buchung.BuchungZeitRaum;
+
+  receipt.document.write('<html><head><title>Rechnung</title>');
+  receipt.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
+  receipt.document.write('</head><body>');
+  receipt.document.write(content);
+  receipt.document.write('</body></html>');
+
+  receipt.document.close();
+
+  receipt.onload = ()=>{
+    receipt.print();
+    receipt.close();
+  }
 
 }
 
@@ -916,9 +947,9 @@ async function addBuchung(){
 }
 
 async function getBewertungen(offene){
-    console.log(offene)
+    //console.log(offene)
     await fetchBewertungen(offene).then((value)=>{
-        console.log(newBewertungen)
+        //console.log(newBewertungen)
         clearDataGrid()
         const dataGrid = document.getElementById('dataGrid')
 
@@ -997,7 +1028,7 @@ function releaseBewertung(event){
     checkbox.checked = !checkbox.checked
 
     //Hier einfügen, dass die Freigabe geändert wurde, sodass es auf der frontpage angezeigt wird
-    //changeFreigabestatus(idBewertung, checkbox.checked)
+    ////changeFreigabestatus(idBewertung, checkbox.checked)
     
 }
 
