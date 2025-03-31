@@ -39,7 +39,7 @@ async function fetchBuchungen(suchbegriff){
 }
 
 async function fetchBewertungen(suchbegriff){
-    const url = "AdminSearch.php?req=Bewertung&search="+encodeURIComponent(suchbegriff);
+    const url = "AdminSearch.php?req=Bewertung&open="+encodeURIComponent(suchbegriff);
     await RequestPHPAsync(url, (data)=>{
         const bewertung = JSON.parse(data)
         newBewertungen = bewertung
@@ -921,6 +921,8 @@ async function getBewertungen(offene){
         console.log(newBewertungen)
         clearDataGrid()
         const dataGrid = document.getElementById('dataGrid')
+
+        //newBewertungen.filter(bw=>bw);
 
         newBewertungen.forEach(bewertung => {
             const bewertungsDiv = document.createElement('div')

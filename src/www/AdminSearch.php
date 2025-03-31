@@ -18,6 +18,7 @@ switch($_GET["req"]){
 
     $conn=ConnectMySQL();
     if(!$conn instanceof mysqli){
+      header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
       echo json_encode("Something went wrong with database connection\n");
       break;
     }
@@ -44,6 +45,7 @@ switch($_GET["req"]){
     }
     CloseMySQL($conn);
 
+    header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
     echo json_encode($list_cust);
 
     break;
@@ -76,6 +78,7 @@ switch($_GET["req"]){
 
     $conn=ConnectMySQL();
     if(!$conn instanceof mysqli){
+      header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
       echo json_encode("Something went wrong with database connection\n");
       break;
     }
@@ -99,6 +102,7 @@ switch($_GET["req"]){
     }
     CloseMySQL($conn);
 
+    header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
     echo json_encode($list_room);
     break;
 
@@ -111,6 +115,7 @@ switch($_GET["req"]){
 
     $conn=ConnectMySQL();
     if(!$conn instanceof mysqli){
+      header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
       echo json_encode("Something went wrong with database connection\n");
       break;
     }
@@ -162,6 +167,7 @@ switch($_GET["req"]){
 
     $conn=ConnectMySQL();
     if(!$conn instanceof mysqli){
+      header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
       echo json_encode("Something went wrong with database connection\n");
       break;
     }
@@ -188,10 +194,12 @@ switch($_GET["req"]){
     }
     CloseMySQL($conn);
 
+    header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
     echo json_encode($list_review);
     break;
 
   default:
+    header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
     echo "Something went wrong!";
 }
 
