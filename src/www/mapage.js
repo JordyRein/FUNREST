@@ -435,7 +435,7 @@ async function changeBuchung(id){
     zimmerSelect.name = 'zimmer';
     zimmerSelect.required = true;
 
-    await fetchZimmer().then(()=>{
+    await fetchZimmer("").then(()=>{
     console.log(newZimmer);
     newZimmer.forEach(zimmer =>{
         const optionZimmer = document.createElement('option');
@@ -829,7 +829,7 @@ function createReceipt(buchung){
 }
 
 async function addBuchung(){
-    await fetchZimmer().then((value)=>{
+    await fetchZimmer("").then((value)=>{
         console.log('newZimmer', newZimmer)
         clearDataGrid()
         const dataGrid = document.getElementById('dataGrid')
@@ -972,6 +972,9 @@ async function getBewertungen(offene){
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.className = 'checkboxInput';
+            checkbox.addEventListener("change", ()=>{
+              releaseBewertung(checkbox.checked, bewertung.BewertungId);
+            });
             if(bewertung.Status === "0"){
                 checkbox.checked = false
             }else{
@@ -981,7 +984,7 @@ async function getBewertungen(offene){
             checkboxLabel.id = bewertung.id;
             checkboxLabel.textContent = 'Freigeben';
             checkboxLabel.className = 'checkboxSpan';
-            checkboxLabel.setAttribute('onclick', 'releaseBewertung(event)')
+            //checkboxLabel.setAttribute('onclick', 'releaseBewertung(event)')
 
             checkboxDiv.appendChild(checkbox);
             checkboxDiv.appendChild(checkboxLabel);
@@ -1022,10 +1025,19 @@ function adjustTextareaHeight() {
     }
 }
 
-function releaseBewertung(event){
-    let idBewertung = event.target.id
-    let checkbox = event.target.previousSibling
-    checkbox.checked = !checkbox.checked
+function releaseBewertung(cbStatus, id){
+    const fd= new FormData();
+    fd.append("Value", cbStatus? 1:0);
+    fd.append("BewertungId", id);
+    fd.append("MitarbeiterId", loggedInUser.Id);
+
+    RequestPHP("POST", "SetReviewOK.php", 
+      (data)=>{
+        console.log(data);
+      },
+      ()=>{},
+      fd
+    );
 
     //Hier einfügen, dass die Freigabe geändert wurde, sodass es auf der frontpage angezeigt wird
     ////changeFreigabestatus(idBewertung, checkbox.checked)
