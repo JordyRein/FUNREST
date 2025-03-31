@@ -39,7 +39,7 @@ async function fetchBuchungen(suchbegriff){
 }
 
 async function fetchBewertungen(suchbegriff){
-    const url = "AdminSearch.php?req=Bewertung&search="+encodeURIComponent(suchbegriff);
+    const url = "AdminSearch.php?req=Bewertung&open="+encodeURIComponent(suchbegriff);
     await RequestPHPAsync(url, (data)=>{
         const bewertung = JSON.parse(data)
         newBewertungen = bewertung
@@ -530,7 +530,7 @@ function addKunde(){
 
     const fields = [
         { label: 'Username:', id: 'uName', type: 'text'},
-        { label: 'Password:', id: 'pass', type: 'text'},
+        { label: 'Password:', id: 'pass', type: 'password'},
         { label: 'Vorname:', id: 'firstName', type: 'text'},
         { label: 'Nachname:', id: 'lastName', type: 'text'},
         { label: 'Straße & Hausnummer:', id: 'street', type: 'text'},
@@ -604,7 +604,7 @@ function addKunde(){
     form.addEventListener('submit', function(event) {
         event.preventDefault();
 
-        var sx = this[5].value == "weiblich"?"F":this[5].value == "männlich" ? "M" : "D";
+        var sx = this[7].value == "weiblich"?"F":this[7].value == "männlich" ? "M" : "D";
         const newKunde = {
             Id: -1,
             FirstName: this[2].value,
@@ -613,7 +613,7 @@ function addKunde(){
             PLZ: this[5].value,
             City: this[6].value,
             Sex: sx,
-            Birthdate: this[7].value,
+            Birthdate: this[8].value,
             Code:"A",
             usr:this[0].value,
             pw:this[1].value
@@ -921,6 +921,8 @@ async function getBewertungen(offene){
         console.log(newBewertungen)
         clearDataGrid()
         const dataGrid = document.getElementById('dataGrid')
+
+        //newBewertungen.filter(bw=>bw);
 
         newBewertungen.forEach(bewertung => {
             const bewertungsDiv = document.createElement('div')
