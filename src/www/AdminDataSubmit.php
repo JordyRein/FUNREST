@@ -17,6 +17,7 @@ if(isset($_GET["search"])){
 
       $conn=ConnectMySQL();
       if(!$conn instanceof mysqli){
+        header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
         echo json_encode("Something went wrong with database connection\n");
         break;
       }
@@ -48,6 +49,7 @@ if(isset($_GET["search"])){
       $res = $conn->query($query);
 
       if($conn->error){
+        header($_SERVER["SERVER_PROTOCOL"] . " 400 Bad Request");
         echo json_encode("Error: $conn->error");
         exit(1);
       }
@@ -59,6 +61,7 @@ if(isset($_GET["search"])){
         exit(1);
       } 
        */
+      header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
       echo json_encode($row['output']);
       
       break;
@@ -67,12 +70,14 @@ if(isset($_GET["search"])){
       $ip = json_decode(file_get_contents("php://input"));
       
       if(!isset($ip)){
+        header($_SERVER["SERVER_PROTOCOL"] . " 400 Bad Request");
         echo json_encode("error no Id");
         exit(1);
       }
 
       $conn=ConnectMySQL();
       if(!$conn instanceof mysqli){
+        header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
         echo json_encode("Something went wrong with database connection\n");
         break;
       }
@@ -93,11 +98,13 @@ if(isset($_GET["search"])){
       $res = $conn->query($query);
 
       if($conn->error){
+        header($_SERVER["SERVER_PROTOCOL"] . " 400 Bad Request");
         echo json_encode("Error: $conn->error");
         exit(1);
       }
       
       $row=$res->fetch_assoc();
+      header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
       echo json_encode($row['output']);
 
       break;
