@@ -1,18 +1,10 @@
 import { Room } from "./ClassZimmer.js";
 import { Customer } from "./ClassKunde.js";
 
-// const ArrayZimmer = [
-//     {name: 'HansWurst', kategorie: 'Premium', betten: 'doppelbett', preis: '120€'},
-//     {name: 'Elise', kategorie: 'Standard', betten: 'einzelbett', preis: '40€'},
-//     {name: 'peter', kategorie: 'Luxus', betten: 'doppelbett', preis: '190€'},
-//     {name: 'Wolf', kategorie: 'Standard', betten: 'einzelbett', preis: '60€'}
-// ]
-
 let newZimmer
 let newKunde
 let newBuchungen
 let newBewertungen
-//let newBuchungChange
 
 async function fetchZimmer(suchbegriff){
     const url = "AdminSearch.php?req=Zimmer&search="+encodeURIComponent(suchbegriff);
@@ -46,106 +38,61 @@ async function fetchBewertungen(suchbegriff){
     }, ()=>{})
 }
 
-const ArrayBewertungen = [
-    {
-        id: 'kl523',
-        kunde: {vorname: "Hans",
-                nachname: "Wurst", 
-                strHausnummer: "Fleischeralle 9",
-                plz: '23487',
-                stadt: "Hackstadt",
-                geschlecht: "d",
-                gebdatum: new Date()},
-        text: 'Bartwurstkeksemmeln sind geil, weil sie die perfekte Kombination aus den würzigen, herzhaften Aromen der Bratwurst und der weichen, fluffigen Textur eines frischen Brötchens bieten. Diese Köstlichkeit, die in Deutschland und darüber hinaus beliebt ist, ist nicht nur ein Geschmackserlebnis, sondern auch eine Hommage an die traditionelle deutsche Küche. Ob nun beim Frühstück, Mittagessen oder als Snack, die Bartwurstkeksemmeln sind ein Fest für den Gaumen und vereinen Einfachheit mit Genuss auf eine Weise, die sowohl satt als auch zufrieden macht.', 
-        sterne: 3,
-        freigegeben: false
-    },
-    {
-        id: 'gt123',
-        kunde: {vorname: "Hans",
-                nachname: "Wurst", 
-                strHausnummer: "Fleischeralle 9",
-                plz: '23487',
-                stadt: "Hackstadt",
-                geschlecht: "d",
-                gebdatum: new Date()},
-        text: 'naja a bissala arsch wars halt', 
-        sterne: 1,
-        freigegeben: true
-    },
-]
-
 let loggedInUser
 let loggedIn = false
 
-const ArrayNutzer = [
-    {
-        id: '1k2j3',
-        vorname: 'joh',
-        nachname: 'blub',
-        rolle: 'admin'
-    },
-    {
-        id: '5j3l2',
-        vorname: 'lyssi',
-        nachname: 'blub',
-        rolle: 'admin'
-    },
-    {
-        id: '2k3g5',
-        vorname: 'jordi',
-        nachname: 'blub',
-        rolle: 'mitarbeiter'
-    },
-]
+function LoginRequest(){
+  const popup = document.getElementById('popup');
+  popup.style.display = 'block';
+  document.getElementById('LoginForm').addEventListener (
+      "submit", 
+      function (evt) {
+        var fd = new FormData(document.getElementById('LoginForm'));
+
+        //for security password should be hashed before sent to backend
+        //await simpleHash(fd.get(password))
+        //          .then(val=>{ 
+        //              fd.set("password", val);
+        //          });
+
+        RequestPHP("POST", "AdminLogin.php",
+            (data)=>{
+              if(data==JSON.stringify("login_err_idpass")){
+              alert("Id/Pass False");
+              return;
+              }
+
+              const d = atob(JSON.parse(data).split('.')[0]);
+              localStorage.setItem("token",JSON.parse(data));
+
+              loggedInUser=JSON.parse(d);
+
+              closeLogin()
+              loggedIn = true
+            },
+            ()=>{
+            },
+            fd);
+
+        evt.preventDefault();
+      }
+  );
+}
 
 document.addEventListener('DOMContentLoaded', function() {
-    if(loggedIn === false){
-        firstVisit()
-        const popup = document.getElementById('popup')
-        popup.style.display = 'block'
-        document.getElementById('LoginForm').addEventListener (
-            "submit", 
-            function (evt) {
-                const test = document.getElementById('LoginForm')
-                var fd = new FormData(document.getElementById('LoginForm'));
+    let token;
+    if((token=localStorage.getItem("token"))){
+      const d = atob(token.split('.')[0]);
+      loggedInUser=JSON.parse(d);
 
-                //for security password should be hashed before sent to backend
-                //simpleHash(fd.get(password))
-                //          .then(val=>{ 
-                //              fd.set("password", val);
-                //          });
-  
-                RequestPHP("POST", "AdminLogin.php",
-                    (data)=>{
-                        if(data==JSON.stringify("login_err_idpass")){
-                          alert("Id/Pass False");
-                          return;
-                        }
-
-                        const d = atob(data.split('.')[0]);
-                        localStorage.setItem("token",data);
-
-                        loggedInUser=JSON.parse(d);
-
-                        //console.log('loggedInUser', loggedInUser)
-                        closeLogin()
-                        loggedIn = true
-                    },
-                    ()=>{
-                    },
-                    fd);
-
-                evt.preventDefault();
-                }
-            )
-
+      closeLogin();
+      return;
     }
-    
+    firstVisit();
+    LoginRequest();
 });
 
 function firstVisit(){
-    
     const headerbutton = document.getElementById('headerButton')
     headerbutton.style.display = 'none'
 
@@ -205,7 +152,9 @@ function firstVisit(){
 
 function closeLogin(){
     const body = document.getElementsByTagName('body')
-    body[0].removeChild(document.getElementById('popup'))
+    if(document.getElementById('popup')){
+      body[0].removeChild(document.getElementById('popup'))
+    }
     bluidToolgrid()
 
     const headerbutton = document.getElementById('headerButton')
@@ -370,7 +319,7 @@ function changeKundenProfil(idKunde){
             Code:"E"
         }
         //Hier die Speicherfunktion zur Datenbank
-        console.log('veränderter kunde', newKunde)
+        //console.log('veränderter kunde', newKunde)
         RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde', 
                   (data)=>{
                     if(JSON.parse(data)=="ok"){
@@ -1183,30 +1132,17 @@ function bluidToolgrid(){
 
 function logout(){
     const toolGrid = document.getElementById('toolGrid')
-    let länge = toolGrid.children.length
+    let länge = toolGrid.children.length;
 
     for(let i = 0;i < länge; i ++){
         toolGrid.removeChild(toolGrid.children[0])
     }
-    clearDataGrid()
-    loggedIn = false
-    firstVisit()
-    const headerbutton = document.getElementById('headerButton')
-    headerbutton.style.display = 'none'
-    const popup = document.getElementById('popup')
-        popup.style.display = 'block'
-        document.getElementById('LoginForm').addEventListener (
-            "submit", 
-            function (evt) {
-                for(let i = 0; i < ArrayNutzer.length; i++){
-                    if(evt.target[0].value === ArrayNutzer[i].vorname && evt.target[1].value === ArrayNutzer[i].nachname){
-                        loggedInUser = ArrayNutzer[i]
-                        closeLogin()
-                        loggedIn = true
-                        break
-                    }
-                    evt.preventDefault();
-                }
-        })
+    clearDataGrid();
+    loggedIn = false;
+    firstVisit();
+    const headerbutton = document.getElementById('headerButton');
+    headerbutton.style.display = 'none';
+    LoginRequest();
 }
+
 window.logout = logout
