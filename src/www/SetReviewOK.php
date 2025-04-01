@@ -20,6 +20,13 @@ if(!$jwtManager->validateToken($_POST["Token"])){
   exit(1);
 }
 
+$role = json_decode($jwtManager->decodeToken($_POST["Token"]))->Role;
+if($role!="Admin"){
+  header($_SERVER["SERVER_PROTOCOL"] . " 403 Unauthenticated");
+  exit(1);
+}
+
+
 if(!(isset($_POST["BewertungId"]) and 
   isset($_POST["MitarbeiterId"]) and 
   isset($_POST["Value"]))){
