@@ -1,9 +1,24 @@
 <?php
 include "SQLConnection.php";
+include "JWTManager.php";
 
 //ini_set("display_errors", "1");
 
+$env = parse_ini_file(dirname(__FILE__,3)."/.env");
+
 header("Content-Type: application/json");
+
+if(!(isset($_POST["Token"]))){
+  header($_SERVER["SERVER_PROTOCOL"] . " 401 Unauthorized");
+  exit(1);
+}
+
+$jwtManager = new JWTManager($env["SECRET_KEY"]);
+
+if(!$jwtManager->validateToken($_POST["Token"])){
+  header($_SERVER["SERVER_PROTOCOL"] . " 403 Unauthenticated");
+  exit(1);
+}
 
 if(!(isset($_POST["BewertungId"]) and 
   isset($_POST["MitarbeiterId"]) and 
@@ -25,6 +40,6 @@ $res = $conn->query($query);
 CloseMySQL($conn);
 
 header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
-echo "ok";
+echo json_encode("ok");
 
 ?>

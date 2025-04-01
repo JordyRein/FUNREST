@@ -931,7 +931,7 @@ async function getBewertungen(offene){
             checkbox.type = 'checkbox';
             checkbox.className = 'checkboxInput';
             checkbox.addEventListener("change", ()=>{
-              releaseBewertung(checkbox.checked, bewertung.BewertungId);
+              releaseBewertung(checkbox, bewertung.BewertungId);
             });
             if(bewertung.Status === "0"){
                 checkbox.checked = false
@@ -983,17 +983,33 @@ function adjustTextareaHeight() {
     }
 }
 
-function releaseBewertung(cbStatus, id){
+function releaseBewertung(checkbox, id){
     const fd= new FormData();
-    fd.append("Value", cbStatus? 1:0);
+    fd.append("Value", checkbox.checked? 1:0);
     fd.append("BewertungId", id);
     fd.append("MitarbeiterId", loggedInUser.Id);
+    fd.append("Token", localStorage.getItem("token"));
 
     RequestPHP("POST", "SetReviewOK.php", 
       (data)=>{
-        console.log(data);
       },
-      ()=>{},
+      (err)=>{
+        checkbox.checked=!checkbox.checked;
+        switch(err){
+          case 400:
+            alert("Bad Request");
+            break;
+          case 401:
+            alert("Unauthorized");
+            break;
+          case 403:
+            alert("Unauthenticated");
+            break;
+          default:
+            alert("Not found");
+            break;
+        }
+      },
       fd
     );
 

@@ -8,11 +8,12 @@ ini_set("display_errors", "1");
 
 header("Content-Type: application/json");
 
-$geheimnis = "secret";
+
+$env = parse_ini_file(dirname(__FILE__,3)."/.env");
 
 if(isset($_POST["username"]) and $_POST["password"]){
 
-  $jwtManager = new JWTManager($geheimnis);
+  $jwtManager = new JWTManager($env["SECRET_KEY"]);
 
   $conn=ConnectMySQL();
 
