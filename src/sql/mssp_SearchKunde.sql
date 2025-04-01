@@ -8,8 +8,10 @@ create procedure mssp_SearchKunde(
 )
 begin
   select * from Kunde 
-  where Vorname  like concat('%',search,'%') or 
-        Nachname like concat('%',search,'%');
+  where (Vorname  like concat('%',search,'%') or 
+        Nachname like concat('%',search,'%')) or 
+        (Id = convert(search, unsigned) and
+        convert(search,unsigned)<>0);
 
 end//
 

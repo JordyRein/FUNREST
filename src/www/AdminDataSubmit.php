@@ -35,6 +35,8 @@ if(isset($_GET["search"])){
                 N'$ip->Birthdate')";
       }
       if($ip->Code == "A"){
+
+      //$ip->pw = hash('sha256',$ip->pw);
       $query = "call mssp_AddKunde(
                 N'$ip->FirstName',
                 N'$ip->LastName',

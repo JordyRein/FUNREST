@@ -23,7 +23,7 @@ switch($_GET["req"]){
       break;
     }
 
-    $query = "call mssp_SearchKunde('%".$s."%')";
+    $query = "call mssp_SearchKunde('".$s."')";
     $res = $conn->query($query);
 
     $i=0;
@@ -52,29 +52,6 @@ switch($_GET["req"]){
 
   case "Zimmer":
     $s=urldecode($_GET["search"]);
-    
-
-    $cat=-1;
-    $t=-1;
-    switch(strtolower($s)){
-    case "premium":
-      $cat=2;
-      break;
-    case "luxus":
-      $cat=3;
-      break;
-    case "standard":
-      $cat=1;
-      break;
-    case "einzelbett":
-      $t=1;
-      break;
-    case "doppelbett":
-      $t=2;
-      break;
-    default:
-      break;
-    }
 
     $conn=ConnectMySQL();
     if(!$conn instanceof mysqli){
@@ -83,7 +60,7 @@ switch($_GET["req"]){
       break;
     }
 
-    $query = "call mssp_SearchRoom(".$cat.",".$t.")";
+    $query = "call mssp_SearchRoom('".$s."')";
     $res = $conn->query($query);
 
     $i=0;

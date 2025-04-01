@@ -1,18 +1,10 @@
 import { Room } from "./ClassZimmer.js";
 import { Customer } from "./ClassKunde.js";
 
-// const ArrayZimmer = [
-//     {name: 'HansWurst', kategorie: 'Premium', betten: 'doppelbett', preis: '120€'},
-//     {name: 'Elise', kategorie: 'Standard', betten: 'einzelbett', preis: '40€'},
-//     {name: 'peter', kategorie: 'Luxus', betten: 'doppelbett', preis: '190€'},
-//     {name: 'Wolf', kategorie: 'Standard', betten: 'einzelbett', preis: '60€'}
-// ]
-
 let newZimmer
 let newKunde
 let newBuchungen
 let newBewertungen
-//let newBuchungChange
 
 async function fetchZimmer(suchbegriff){
     const url = "AdminSearch.php?req=Zimmer&search="+encodeURIComponent(suchbegriff);
@@ -46,97 +38,61 @@ async function fetchBewertungen(suchbegriff){
     }, ()=>{})
 }
 
-const ArrayBewertungen = [
-    {
-        id: 'kl523',
-        kunde: {vorname: "Hans",
-                nachname: "Wurst", 
-                strHausnummer: "Fleischeralle 9",
-                plz: '23487',
-                stadt: "Hackstadt",
-                geschlecht: "d",
-                gebdatum: new Date()},
-        text: 'Bartwurstkeksemmeln sind geil, weil sie die perfekte Kombination aus den würzigen, herzhaften Aromen der Bratwurst und der weichen, fluffigen Textur eines frischen Brötchens bieten. Diese Köstlichkeit, die in Deutschland und darüber hinaus beliebt ist, ist nicht nur ein Geschmackserlebnis, sondern auch eine Hommage an die traditionelle deutsche Küche. Ob nun beim Frühstück, Mittagessen oder als Snack, die Bartwurstkeksemmeln sind ein Fest für den Gaumen und vereinen Einfachheit mit Genuss auf eine Weise, die sowohl satt als auch zufrieden macht.', 
-        sterne: 3,
-        freigegeben: false
-    },
-    {
-        id: 'gt123',
-        kunde: {vorname: "Hans",
-                nachname: "Wurst", 
-                strHausnummer: "Fleischeralle 9",
-                plz: '23487',
-                stadt: "Hackstadt",
-                geschlecht: "d",
-                gebdatum: new Date()},
-        text: 'naja a bissala arsch wars halt', 
-        sterne: 1,
-        freigegeben: true
-    },
-]
-
 let loggedInUser
 let loggedIn = false
 
-const ArrayNutzer = [
-    {
-        id: '1k2j3',
-        vorname: 'joh',
-        nachname: 'blub',
-        rolle: 'admin'
-    },
-    {
-        id: '5j3l2',
-        vorname: 'lyssi',
-        nachname: 'blub',
-        rolle: 'admin'
-    },
-    {
-        id: '2k3g5',
-        vorname: 'jordi',
-        nachname: 'blub',
-        rolle: 'mitarbeiter'
-    },
-]
+function LoginRequest(){
+  const popup = document.getElementById('popup');
+  popup.style.display = 'block';
+  document.getElementById('LoginForm').addEventListener (
+      "submit", 
+      function (evt) {
+        var fd = new FormData(document.getElementById('LoginForm'));
+
+        //for security password should be hashed before sent to backend
+        //await simpleHash(fd.get(password))
+        //          .then(val=>{ 
+        //              fd.set("password", val);
+        //          });
+
+        RequestPHP("POST", "AdminLogin.php",
+            (data)=>{
+              if(data==JSON.stringify("login_err_idpass")){
+              alert("Id/Pass False");
+              return;
+              }
+
+              const d = atob(JSON.parse(data).split('.')[0]);
+              localStorage.setItem("token",JSON.parse(data));
+
+              loggedInUser=JSON.parse(d);
+
+              closeLogin()
+              loggedIn = true
+            },
+            ()=>{
+            },
+            fd);
+
+        evt.preventDefault();
+      }
+  );
+}
 
 document.addEventListener('DOMContentLoaded', function() {
-    if(loggedIn === false){
-        firstVisit()
-        const popup = document.getElementById('popup')
-        popup.style.display = 'block'
-        document.getElementById('LoginForm').addEventListener (
-            "submit", 
-            function (evt) {
-                const test = document.getElementById('LoginForm')
-                var fd = new FormData(document.getElementById('LoginForm'));
-  
-                RequestPHP("POST", "AdminLogin.php",
-                    (data)=>{
-                        if(data==JSON.stringify("login_err_idpass")){
-                          alert("Id/Pass False");
-                          return;
-                        }
+    let token;
+    if((token=localStorage.getItem("token"))){
+      const d = atob(token.split('.')[0]);
+      loggedInUser=JSON.parse(d);
 
-                        loggedInUser=JSON.parse(data);
-
-                        //console.log('loggedInUser', loggedInUser)
-                        closeLogin()
-                        loggedIn = true
-                    },
-                    ()=>{
-                    },
-                    fd);
-
-                evt.preventDefault();
-                }
-            )
-
+      closeLogin();
+      return;
     }
-    
+    firstVisit();
+    LoginRequest();
 });
 
 function firstVisit(){
-    
     const headerbutton = document.getElementById('headerButton')
     headerbutton.style.display = 'none'
 
@@ -196,7 +152,9 @@ function firstVisit(){
 
 function closeLogin(){
     const body = document.getElementsByTagName('body')
-    body[0].removeChild(document.getElementById('popup'))
+    if(document.getElementById('popup')){
+      body[0].removeChild(document.getElementById('popup'))
+    }
     bluidToolgrid()
 
     const headerbutton = document.getElementById('headerButton')
@@ -361,7 +319,7 @@ function changeKundenProfil(idKunde){
             Code:"E"
         }
         //Hier die Speicherfunktion zur Datenbank
-        console.log('veränderter kunde', newKunde)
+        //console.log('veränderter kunde', newKunde)
         RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde', 
                   (data)=>{
                     if(JSON.parse(data)=="ok"){
@@ -435,7 +393,7 @@ async function changeBuchung(id){
     zimmerSelect.name = 'zimmer';
     zimmerSelect.required = true;
 
-    await fetchZimmer().then(()=>{
+    await fetchZimmer("").then(()=>{
     console.log(newZimmer);
     newZimmer.forEach(zimmer =>{
         const optionZimmer = document.createElement('option');
@@ -479,7 +437,7 @@ async function changeBuchung(id){
     // Submit Button
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
-    submitButton.textContent = 'erstellen der Buchung';
+    submitButton.textContent = 'Edit Buchung';
     form.appendChild(submitButton);
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -786,6 +744,12 @@ async function getBuchung(suchbegriff){
             button.onclick = ()=> changeBuchung(rowData.BuchungId)
             row.appendChild(button)
 
+            const buttonR = document.createElement('button');
+            buttonR.id = rowData.BuchungId;
+            buttonR.textContent = 'Rechnung';
+            buttonR.onclick = ()=> createReceipt(rowData);
+            row.appendChild(buttonR);
+
             tbody.appendChild(row);
         });
         table.appendChild(tbody);
@@ -797,9 +761,34 @@ async function getBuchung(suchbegriff){
 
 }
 
+function createReceipt(buchung){
+  console.log(buchung);
+  const receipt = window.open("","","height=600, width=800");
+  const content = 
+    "<h1> FUNREST </h1>" + 
+    "Vorname = " + buchung.KundeVorname + "<br>" +
+    "Nachname = " + buchung.KundeNachname + "<br>" +
+    "ZimmerName = " + buchung.ZimmerName + "<br>" +
+    "Preis = " + buchung.Preis * buchung.BuchungZeitRaum;
+
+  receipt.document.write('<html><head><title>Rechnung</title>');
+  receipt.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
+  receipt.document.write('</head><body>');
+  receipt.document.write(content);
+  receipt.document.write('</body></html>');
+
+  receipt.document.close();
+
+  receipt.onload = ()=>{
+    receipt.print();
+    receipt.close();
+  }
+
+}
+
 async function addBuchung(){
-    await fetchZimmer().then((value)=>{
-        console.log('newZimmer', newZimmer)
+    await fetchZimmer("").then((value)=>{
+        //console.log('newZimmer', newZimmer)
         clearDataGrid()
         const dataGrid = document.getElementById('dataGrid')
 
@@ -916,9 +905,9 @@ async function addBuchung(){
 }
 
 async function getBewertungen(offene){
-    console.log(offene)
+    //console.log(offene)
     await fetchBewertungen(offene).then((value)=>{
-        console.log(newBewertungen)
+        //console.log(newBewertungen)
         clearDataGrid()
         const dataGrid = document.getElementById('dataGrid')
 
@@ -941,6 +930,9 @@ async function getBewertungen(offene){
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.className = 'checkboxInput';
+            checkbox.addEventListener("change", ()=>{
+              releaseBewertung(checkbox, bewertung.BewertungId);
+            });
             if(bewertung.Status === "0"){
                 checkbox.checked = false
             }else{
@@ -950,7 +942,7 @@ async function getBewertungen(offene){
             checkboxLabel.id = bewertung.id;
             checkboxLabel.textContent = 'Freigeben';
             checkboxLabel.className = 'checkboxSpan';
-            checkboxLabel.setAttribute('onclick', 'releaseBewertung(event)')
+            //checkboxLabel.setAttribute('onclick', 'releaseBewertung(event)')
 
             checkboxDiv.appendChild(checkbox);
             checkboxDiv.appendChild(checkboxLabel);
@@ -991,13 +983,38 @@ function adjustTextareaHeight() {
     }
 }
 
-function releaseBewertung(event){
-    let idBewertung = event.target.id
-    let checkbox = event.target.previousSibling
-    checkbox.checked = !checkbox.checked
+function releaseBewertung(checkbox, id){
+    const fd= new FormData();
+    fd.append("Value", checkbox.checked? 1:0);
+    fd.append("BewertungId", id);
+    fd.append("MitarbeiterId", loggedInUser.Id);
+    fd.append("Token", localStorage.getItem("token"));
+
+    RequestPHP("POST", "SetReviewOK.php", 
+      (data)=>{
+      },
+      (err)=>{
+        checkbox.checked=!checkbox.checked;
+        switch(err){
+          case 400:
+            alert("Bad Request");
+            break;
+          case 401:
+            alert("Unauthorized");
+            break;
+          case 403:
+            alert("Unauthenticated");
+            break;
+          default:
+            alert("Not found");
+            break;
+        }
+      },
+      fd
+    );
 
     //Hier einfügen, dass die Freigabe geändert wurde, sodass es auf der frontpage angezeigt wird
-    //changeFreigabestatus(idBewertung, checkbox.checked)
+    ////changeFreigabestatus(idBewertung, checkbox.checked)
     
 }
 
@@ -1131,30 +1148,17 @@ function bluidToolgrid(){
 
 function logout(){
     const toolGrid = document.getElementById('toolGrid')
-    let länge = toolGrid.children.length
+    let länge = toolGrid.children.length;
 
     for(let i = 0;i < länge; i ++){
         toolGrid.removeChild(toolGrid.children[0])
     }
-    clearDataGrid()
-    loggedIn = false
-    firstVisit()
-    const headerbutton = document.getElementById('headerButton')
-    headerbutton.style.display = 'none'
-    const popup = document.getElementById('popup')
-        popup.style.display = 'block'
-        document.getElementById('LoginForm').addEventListener (
-            "submit", 
-            function (evt) {
-                for(let i = 0; i < ArrayNutzer.length; i++){
-                    if(evt.target[0].value === ArrayNutzer[i].vorname && evt.target[1].value === ArrayNutzer[i].nachname){
-                        loggedInUser = ArrayNutzer[i]
-                        closeLogin()
-                        loggedIn = true
-                        break
-                    }
-                    evt.preventDefault();
-                }
-        })
+    clearDataGrid();
+    loggedIn = false;
+    firstVisit();
+    const headerbutton = document.getElementById('headerButton');
+    headerbutton.style.display = 'none';
+    LoginRequest();
 }
+
 window.logout = logout
