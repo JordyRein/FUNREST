@@ -98,8 +98,14 @@ if(isset($_GET["search"])){
       $query=";";
       // Specific structure inside Input, if its an Edit request or Add request
       if($ip->Code == "E"){
-      //$query = "call mssp_EditBooking(
-                //N'$ip->Birthdate')";
+      $query = "call mssp_EditBooking(
+                $ip->Id,
+                $ip->KID,
+                N'$ip->Zimmer',
+                N'$ip->anreise',
+                N'$ip->abreise',
+                $ip->MID
+                )";
       }
       if($ip->Code == "A"){
       $query = "call mssp_AddBooking(

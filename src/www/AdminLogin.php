@@ -4,17 +4,17 @@ include "SQLConnection.php";
 include "Mitarbeiter.php";
 include "JWTManager.php";
 
-ini_set("display_errors", "1");
+//ini_set("display_errors", "1");
 
 header("Content-Type: application/json");
 
-
+// get relevant data from env
 $env = parse_ini_file(dirname(__FILE__,3)."/.env");
 
 if(isset($_POST["username"]) and $_POST["password"]){
-
   $jwtManager = new JWTManager($env["SECRET_KEY"]);
 
+  // Connect to DB and run Login Query
   $conn=ConnectMySQL();
 
   if(!$conn instanceof mysqli){
@@ -35,6 +35,7 @@ if(isset($_POST["username"]) and $_POST["password"]){
 
   CloseMySQL($conn);
 
+  //Output - give JWT token back with login payload
   header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
   //echo json_encode($ma);
   echo json_encode($jwtManager->createToken(json_encode($ma)));
