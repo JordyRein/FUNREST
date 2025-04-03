@@ -27,7 +27,7 @@ begin
  set FOREIGN_KEY_CHECKS=0;
 
  update Buchung b
- set  KundenID=id,
+ set  KundenID=kid,
       ZimmerID=@zid,
       Anreise=anr,
       Abreise=abr,
