@@ -2,12 +2,15 @@
 include "SQLConnection.php";
 include "JWTManager.php";
 
+//debugging purpose
 //ini_set("display_errors", "1");
 
+//get relevant data from env
 $env = parse_ini_file(dirname(__FILE__,3)."/.env");
 
 header("Content-Type: application/json");
 
+// Authentification and Authorization
 if(!(isset($_POST["Token"]))){
   header($_SERVER["SERVER_PROTOCOL"] . " 401 Unauthorized");
   exit(1);
@@ -34,6 +37,7 @@ if(!(isset($_POST["BewertungId"]) and
   exit(1);
 }
 
+//connect to DB and run query
 $conn=ConnectMySQL();
 if(!$conn instanceof mysqli){
   header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
@@ -46,6 +50,7 @@ $res = $conn->query($query);
 
 CloseMySQL($conn);
 
+//Output
 header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
 echo json_encode("ok");
 

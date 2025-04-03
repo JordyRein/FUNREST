@@ -341,18 +341,15 @@ function changeKundenProfil(idKunde){
 
 async function changeBuchung(id){
     clearDataGrid()
-    //console.log(newBuchungen);
 
-    let newBuchungChange = newBuchungen[0];
+    let newBuchungChange = newBuchungen.find(b=>b.BuchungId == id);
 
-    console.log('newBuchungtoChange', newBuchungChange)
     clearDataGrid()
     const dataGrid = document.getElementById('dataGrid')
 
     const form = document.createElement('form');
     form.id = 'buchungForm';
 
-    console.log(newBuchungChange.KundeVorname);
     const fields = [
         {  label: 'Kunde Vorname:',
            id: 'firstName', 
@@ -394,7 +391,6 @@ async function changeBuchung(id){
     zimmerSelect.required = true;
 
     await fetchZimmer("").then(()=>{
-    console.log(newZimmer);
     newZimmer.forEach(zimmer =>{
         const optionZimmer = document.createElement('option');
         optionZimmer.value = zimmer.Name;
@@ -442,23 +438,29 @@ async function changeBuchung(id){
     form.addEventListener('submit', function(event) {
         event.preventDefault();
 
-        console.log(event)
-
-        const newBuchung = {
-            Id: -1,
+        const changeBuchung = {
+            Id: id,
+            KID: newBuchungChange.KundeId,
             FirstName: this[0].value,
             LastName: this[1].value,
             Zimmer: this[2].value,
             anreise: this[3].value,
             abreise: this[4].value,
+            MID: loggedInUser.Id,
+            ReviewId: newBuchungChange.BewertungsId,
+            Code:"E"
         }
 
-        console.log('newBuchung', newBuchung)
-        //Hier die Speicherfunktion zur Datenbank
-        RequestPHP('POST', 'AdminDataSubmit.php?search=Buchung', ()=>{}, ()=>{}, newBuchung)
+        RequestPHP('POST', 'AdminDataSubmit.php?search=Buchung', 
+            (data)=>{
+              console.log(data);
+            }, 
+            ()=>{}, 
+            JSON.stringify(changeBuchung))
 
-        alert('Buchung erfolgreich angelegt!');
+        alert('Buchung erfolgreich geaendert!');
         clearDataGrid()
+
     });
 
     dataGrid.appendChild(form);

@@ -16,6 +16,7 @@ switch($_GET["req"]){
   case "Kunde":
     $s=urldecode($_GET["search"]);
 
+    //Connect to DB and run Query
     $conn=ConnectMySQL();
     if(!$conn instanceof mysqli){
       header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
@@ -45,6 +46,7 @@ switch($_GET["req"]){
     }
     CloseMySQL($conn);
 
+    //output
     header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
     echo json_encode($list_cust);
 
@@ -53,6 +55,7 @@ switch($_GET["req"]){
   case "Zimmer":
     $s=urldecode($_GET["search"]);
 
+    //Connect to DB and run Query
     $conn=ConnectMySQL();
     if(!$conn instanceof mysqli){
       header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
@@ -79,17 +82,21 @@ switch($_GET["req"]){
     }
     CloseMySQL($conn);
 
+    //output
     header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
     echo json_encode($list_room);
     break;
 
   case "Buchung":
     $s=urldecode($_GET["search"]);
+
+    // give default value to search term and replace it when needed
     $k=-1;
     if($s != ''){
       $k = $s;
     }
 
+    //Connect to DB and run Query
     $conn=ConnectMySQL();
     if(!$conn instanceof mysqli){
       header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
@@ -122,11 +129,14 @@ switch($_GET["req"]){
     }
     CloseMySQL($conn);
 
+    //output
     echo json_encode($list_reserve);
     break;
 
   case "Bewertung":
     $open=urldecode($_GET["open"]);
+
+    // set search term to released/not released Review, default to show all
     $s=-1;
     switch(strtolower($open)){
       case "-1":
@@ -171,11 +181,13 @@ switch($_GET["req"]){
     }
     CloseMySQL($conn);
 
+    //output
     header($_SERVER["SERVER_PROTOCOL"] . " 200 Success");
     echo json_encode($list_review);
     break;
 
   default:
+    // output if search not correct
     header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
     echo "Something went wrong!";
 }
