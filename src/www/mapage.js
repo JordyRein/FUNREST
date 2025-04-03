@@ -1,49 +1,76 @@
-import { Room } from "./ClassZimmer.js";
-import { Customer } from "./ClassKunde.js";
+// --------------------------------------------------------------------
+// Anlegen von verschiedenen immer wieder genutzten Variablen
+// --------------------------------------------------------------------
 
-let newZimmer
-let newKunde
-let newBuchungen
-let newBewertungen
+// Variablen für zwischenspeicherung der aus der Datenbank geladenen Daten
+let ZimmerArray
+let KundenArray
+let BuchungenArray
+let BewertungenArray
+let loggedInUser
+let loggedIn = false
 
+// --------------------------------------------------------------------
+// Ausführen von Funktionen die nach dem fertigen Laden der Website ausgeführt werden müssen anch dem ersten Starten
+// --------------------------------------------------------------------
+
+document.addEventListener('DOMContentLoaded', function() {
+    let token;
+    if((token=localStorage.getItem("token"))){
+      const d = atob(token.split('.')[0]);
+      loggedInUser=JSON.parse(d);
+
+      closeLogin();
+      return;
+    }
+    firstVisit();
+    LoginRequest();
+});
+
+// --------------------------------------------------------------------
+// Block aller verwendeten Funktionen
+// --------------------------------------------------------------------
+
+// Datenbankabfrage: Abspeichern der (gefilterten) Zimmer in "ZimmerArray"
 async function fetchZimmer(suchbegriff){
     const url = "AdminSearch.php?req=Zimmer&search="+encodeURIComponent(suchbegriff);
     await RequestPHPAsync(url, (data)=>{
         const zimmer = JSON.parse(data)
-        newZimmer = zimmer
+        ZimmerArray = zimmer
     }, ()=>{})
 }
 
+// Datenbankabfrage: Abspeichern der (gefilterten) Kunden in "KundenArray"
 async function fetchKunden(suchbegriff){
     const url = "AdminSearch.php?req=Kunde&search="+encodeURIComponent(suchbegriff);
     await RequestPHPAsync(url, (data)=>{
         const kunde = JSON.parse(data)
-        newKunde = kunde
+        KundenArray = kunde
     }, ()=>{})
 }
 
+// Datenbankabfrage: Abspeichern der (gefilterten) Buchungen in "BuchungenArray"
 async function fetchBuchungen(suchbegriff){
     const url = "AdminSearch.php?req=Buchung&search="+encodeURIComponent(suchbegriff);
     await RequestPHPAsync(url, (data)=>{
         const buchung = JSON.parse(data)
-        newBuchungen = buchung
+        BuchungenArray = buchung
     }, ()=>{})
 }
 
+// Datenbankabfrage: Abspeichern der (gefilterten) Bewertungen in "BewertungenArray"
 async function fetchBewertungen(suchbegriff){
     const url = "AdminSearch.php?req=Bewertung&open="+encodeURIComponent(suchbegriff);
     await RequestPHPAsync(url, (data)=>{
         const bewertung = JSON.parse(data)
-        newBewertungen = bewertung
+        BewertungenArray = bewertung
     }, ()=>{})
 }
 
-let loggedInUser
-let loggedIn = false
-
+// ???
 function LoginRequest(){
   const popup = document.getElementById('popup');
-  popup.style.display = 'block';
+  popup.style.display = 'flex';
   document.getElementById('LoginForm').addEventListener (
       "submit", 
       function (evt) {
@@ -79,20 +106,9 @@ function LoginRequest(){
   );
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    let token;
-    if((token=localStorage.getItem("token"))){
-      const d = atob(token.split('.')[0]);
-      loggedInUser=JSON.parse(d);
-
-      closeLogin();
-      return;
-    }
-    firstVisit();
-    LoginRequest();
-});
-
+// Erstellt das Login-Popup beim ersten Besuch der Seite und blendet den Login-Button aus
 function firstVisit(){
+
     const headerbutton = document.getElementById('headerButton')
     headerbutton.style.display = 'none'
 
@@ -150,6 +166,8 @@ function firstVisit(){
     header[0].insertAdjacentElement("afterend",loginContainerDiv)
 }
 
+// Schließen des Login-Popups und erstellen der administrativen Kacheln
+// toDo: gleichziehen mit Visitorpage
 function closeLogin(){
     const body = document.getElementsByTagName('body')
     if(document.getElementById('popup')){
@@ -161,9 +179,10 @@ function closeLogin(){
     headerbutton.style.display = 'flex'
 }
 
+// Bei Klick auf "Suchen", auf administrativer Kachel Kunde
+// - Erstellen der Tabelle mit allen Kundendaten die dem Suchbegriff entsprechen (bei nichts alle)
 async function getKunde(suchbegriff){
     await fetchKunden(suchbegriff).then((value)=>{
-        //console.log(newKunde)
         clearDataGrid()
         const dataGrid = document.getElementById('dataGrid')
 
@@ -174,12 +193,13 @@ async function getKunde(suchbegriff){
         ['Kundennummer', 'Name', 'Geburtsdatum', ''].forEach((headerText) => {
             const th = document.createElement('th');
             th.textContent = headerText;
+            headerRow.appendChild(th);
         });
         thead.appendChild(headerRow);
         table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
-        newKunde.forEach(kunde => {
+        KundenArray.forEach(kunde => {
             const row = document.createElement('tr');
             const cellID = document.createElement('td');
             cellID.textContent = kunde.Id;
@@ -193,7 +213,6 @@ async function getKunde(suchbegriff){
             const button = document.createElement('button')
             button.id = kunde.Id
             button.textContent = 'Bearbeiten'
-            // button.setAttribute('onclick', `changeKundenProfil('${kunde.id}')`)
             button.onclick = ()=> changeKundenProfil(kunde.Id)
             row.appendChild(button)
 
@@ -206,10 +225,13 @@ async function getKunde(suchbegriff){
     
 }
 
+// Bei Klick auf "Bearbeiten" neben einen Kunden in der Kundentabelle
+// - ablöschen der Kundentabelle
+// - erstellen einer "Form" mit allen aktuellen Nutzerdaten des übergebenen Nutzers
+// - aktualiseren der Nutzerdaten in der Datenbank
 function changeKundenProfil(idKunde){
-    console.log(idKunde)
     clearDataGrid()
-    let zuändernderKunde = newKunde.filter(kunde => kunde.Id === idKunde)
+    let zuändernderKunde = KundenArray.filter(kunde => kunde.Id === idKunde)
     console.log(zuändernderKunde[0])
     const dataGrid = document.getElementById('dataGrid')
 
@@ -287,7 +309,6 @@ function changeKundenProfil(idKunde){
     // Geburtsdatum
     const birthDateLabel = document.createElement('label');
     birthDateLabel.setAttribute('for', 'birthDate');
-    // birthDateLabel.for = ()=> birthDate
     birthDateLabel.textContent = 'Geburtsdatum:';
     form.appendChild(birthDateLabel);
 
@@ -319,7 +340,6 @@ function changeKundenProfil(idKunde){
             Code:"E"
         }
         //Hier die Speicherfunktion zur Datenbank
-        //console.log('veränderter kunde', newKunde)
         RequestPHP('POST', 'AdminDataSubmit.php?search=Kunde', 
                   (data)=>{
                     if(JSON.parse(data)=="ok"){
@@ -339,11 +359,14 @@ function changeKundenProfil(idKunde){
     dataGrid.appendChild(form);
 }
 
+// Bei Klick auf "Bearbeiten" neben einer Buchung in der Buchungstabelle
+// - ablöschen der Buchungstabelle
+// - erstellen einer "Form" mit allen aktuellen Daten der Buchung
+// - aktualiseren der Buchung in der Datenbank
 async function changeBuchung(id){
     clearDataGrid()
 
     let newBuchungChange = newBuchungen.find(b=>b.BuchungId == id);
-
     clearDataGrid()
     const dataGrid = document.getElementById('dataGrid')
 
@@ -391,7 +414,7 @@ async function changeBuchung(id){
     zimmerSelect.required = true;
 
     await fetchZimmer("").then(()=>{
-    newZimmer.forEach(zimmer =>{
+    ZimmerArray.forEach(zimmer =>{
         const optionZimmer = document.createElement('option');
         optionZimmer.value = zimmer.Name;
         optionZimmer.textContent = zimmer.Kategorie + ': ' + zimmer.Name;
@@ -437,7 +460,6 @@ async function changeBuchung(id){
     form.appendChild(submitButton);
     form.addEventListener('submit', function(event) {
         event.preventDefault();
-
         const changeBuchung = {
             Id: id,
             KID: newBuchungChange.KundeId,
@@ -466,21 +488,8 @@ async function changeBuchung(id){
     dataGrid.appendChild(form);
 }
 
-function formatDateForInput(date) {
-    const parts = date.split('-');
-    let year = parseInt(parts[0], 10); 
-    let month = parseInt(parts[1], 10); 
-    let day = parseInt(parts[2], 10); 
-
-    if(day/10 < 1){
-        day = '0' + day
-    }
-    if(month/10 < 1){
-        month = '0' + month
-    }
-    return `${year}-${month}-${day}`;
-}
-
+// Bei Klick auf "Kunde anlegen" auf administrative Kachel Kunde
+// - erstellen einer "Form" für alle Daten des Kunden
 function addKunde(){
     clearDataGrid()
     const dataGrid = document.getElementById('dataGrid')
@@ -505,6 +514,7 @@ function addKunde(){
         form.appendChild(label);
 
         const input = document.createElement('input');
+        input.className = 'toolgridInput'
         input.type = field.type;
         input.id = field.id;
         input.name = field.id;
@@ -599,6 +609,8 @@ function addKunde(){
     
 }
 
+// Bei Klick auf "Suchen" auf administrativer Kachel Zimmer
+// - Erstellen der Tabelle mit allen Zimmerdaten die dem Suchbegriff entsprechen (bei nichts alle)
 async function getZimmer(suchbegriff){
     await fetchZimmer(suchbegriff).then((value)=>{
         clearDataGrid()
@@ -611,7 +623,7 @@ async function getZimmer(suchbegriff){
         // Objekt, das den Sortierungszustand für jede Spalte speichert
         const sortStates = {};
 
-        ['Name', 'Betten', 'Kategorie', 'Preis', 'Bildpfad'].forEach((headerText, index) => {
+        ['ID', 'Name', 'Betten', 'Kategorie', 'Preis', 'Bildpfad'].forEach((headerText, index) => {
             const th = document.createElement('th');
             th.textContent = headerText;
             
@@ -643,7 +655,7 @@ async function getZimmer(suchbegriff){
         table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
-        newZimmer.forEach(rowData => {
+        ZimmerArray.forEach(rowData => {
             const row = document.createElement('tr');
             Object.values(rowData).forEach(cellData => {
                 const cell = document.createElement('td');
@@ -671,8 +683,8 @@ async function getZimmer(suchbegriff){
                 } else if (sortState === 2) {  // Aufsteigend
                     return aCol > bCol ? 1 : -1;
                 } else {  // Sortierung zurücksetzen (Originalreihenfolge)
-                    return newZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: aCol, kategorie: b.getElementsByTagName('td')[1].textContent, betten: b.getElementsByTagName('td')[2].textContent, preis: b.getElementsByTagName('td')[3].textContent})))) - 
-                    newZimmer.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: bCol, kategorie: a.getElementsByTagName('td')[1].textContent, betten: a.getElementsByTagName('td')[2].textContent, preis: a.getElementsByTagName('td')[3].textContent})))) 
+                    return ZimmerArray.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: aCol, kategorie: b.getElementsByTagName('td')[1].textContent, betten: b.getElementsByTagName('td')[2].textContent, preis: b.getElementsByTagName('td')[3].textContent})))) - 
+                    ZimmerArray.indexOf(JSON.parse(JSON.stringify(Object.assign({}, {name: bCol, kategorie: a.getElementsByTagName('td')[1].textContent, betten: a.getElementsByTagName('td')[2].textContent, preis: a.getElementsByTagName('td')[3].textContent})))) 
                 }
             });
             while (tbody.firstChild) {
@@ -688,6 +700,8 @@ async function getZimmer(suchbegriff){
     
 }
 
+// Bei Klick auf "Suchen" auf administrativer Kachel Buchung
+// - Erstellen der Tabelle mit allen Buchungen die dem Suchbegriff entsprechen (bei nichts alle)
 async function getBuchung(suchbegriff){
     await fetchBuchungen(suchbegriff).then((value)=>{
         //console.log(newBuchungen)
@@ -699,7 +713,7 @@ async function getBuchung(suchbegriff){
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
 
-        ['ID', 'Kunde', 'Zimmer', 'Preis', 'Anreise', 'Abreise', ''].forEach((headerText) => {
+        ['ID', 'Kunde', 'Zimmer', 'Preis', 'Anreise', 'Abreise'].forEach((headerText) => {
             const th = document.createElement('th');
             th.textContent = headerText;
             headerRow.appendChild(th);
@@ -708,7 +722,7 @@ async function getBuchung(suchbegriff){
         table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
-        newBuchungen.forEach(rowData => {
+        BuchungenArray.forEach(rowData => {
             const row = document.createElement('tr');
 
             const cellId = document.createElement('td')
@@ -739,18 +753,24 @@ async function getBuchung(suchbegriff){
             cellAbreise.textContent = rowData.Abreise
             row.appendChild(cellAbreise);
 
+            const cellButton = document.createElement('td')
+
             const button = document.createElement('button')
+            button.style.margin = '0px'
             button.id = rowData.BuchungId
             button.textContent = 'Bearbeiten'
-            // button.setAttribute('onclick', `changeKundenProfil('${kunde.id}')`)
             button.onclick = ()=> changeBuchung(rowData.BuchungId)
-            row.appendChild(button)
+            cellButton.appendChild(button)
+            row.appendChild(cellButton)
 
+            const cellButtonR = document.createElement('td')
             const buttonR = document.createElement('button');
+            buttonR.style.margin = '0px'
             buttonR.id = rowData.BuchungId;
             buttonR.textContent = 'Rechnung';
             buttonR.onclick = ()=> createReceipt(rowData);
-            row.appendChild(buttonR);
+            cellButtonR.appendChild(buttonR)
+            row.appendChild(cellButtonR);
 
             tbody.appendChild(row);
         });
@@ -763,34 +783,161 @@ async function getBuchung(suchbegriff){
 
 }
 
+// ???
 function createReceipt(buchung){
-  console.log(buchung);
-  const receipt = window.open("","","height=600, width=800");
-  const content = 
-    "<h1> FUNREST </h1>" + 
-    "Vorname = " + buchung.KundeVorname + "<br>" +
-    "Nachname = " + buchung.KundeNachname + "<br>" +
-    "ZimmerName = " + buchung.ZimmerName + "<br>" +
-    "Preis = " + buchung.Preis * buchung.BuchungZeitRaum;
 
-  receipt.document.write('<html><head><title>Rechnung</title>');
-  receipt.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
-  receipt.document.write('</head><body>');
-  receipt.document.write(content);
-  receipt.document.write('</body></html>');
+    //Code Jordi auskommentiert und durch Code von Grok ersetzt da keine Zeit die grafische oberflöche selber zu amchen
+        //   const receipt = window.open("","","height=600, width=800");
+        //   const content = 
+        //     "<h1> FUNREST </h1>" + 
+        //     "Vorname = " + buchung.KundeVorname + "<br>" +
+        //     "Nachname = " + buchung.KundeNachname + "<br>" +
+        //     "ZimmerName = " + buchung.ZimmerName + "<br>" +
+        //     "Preis = " + buchung.Preis * buchung.BuchungZeitRaum;
 
-  receipt.document.close();
+        //   receipt.document.write('<html><head><title>Rechnung</title>');
+        //   receipt.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
+        //   receipt.document.write('</head><body>');
+        //   receipt.document.write(content);
+        //   receipt.document.write('</body></html>');
 
-  receipt.onload = ()=>{
-    receipt.print();
-    receipt.close();
-  }
+        //   receipt.document.close();
 
+        //   receipt.onload = ()=>{
+        //     receipt.print();
+        //     receipt.close();
+        //   }
+
+    const receipt = window.open("", "", "height=800, width=600");
+
+    // HTML-Inhalt der Rechnung
+    const content = `
+        <html>
+        <head>
+            <title>Rechnung - FUNREST</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    color: #333;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    border: 1px solid #ccc;
+                    padding: 20px;
+                    background: #fff;
+                }
+                .header {
+                    text-align: center;
+                    border-bottom: 2px solid #003087;
+                    padding-bottom: 10px;
+                    margin-bottom: 20px;
+                }
+                .header img {
+                    max-height: 60px;
+                }
+                .header h1 {
+                    margin: 10px 0;
+                    color: #003087;
+                    font-size: 24px;
+                }
+                .details-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 20px;
+                }
+                .details-table th, .details-table td {
+                    padding: 8px;
+                    text-align: left;
+                    border-bottom: 1px solid #ddd;
+                }
+                .details-table th {
+                    background: #f5f5f5;
+                    width: 40%;
+                }
+                .total {
+                    text-align: right;
+                    font-size: 18px;
+                    font-weight: bold;
+                    margin-top: 20px;
+                }
+                .footer {
+                    text-align: center;
+                    font-size: 12px;
+                    color: #666;
+                    margin-top: 30px;
+                    border-top: 1px solid #ddd;
+                    padding-top: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <img src="LogoFUNREST.png" alt="FUNREST Logo">
+                    <h1>FUNREST Hotelkette</h1>
+                    <p>Rechnung für Ihre Buchung</p>
+                </div>
+
+                <table class="details-table">
+                    <tr>
+                        <th>Rechnungsnummer</th>
+                        <td>${buchung.BuchungId}</td>
+                    </tr>
+                    <tr>
+                        <th>Kunde</th>
+                        <td>${buchung.KundeId}</td>
+                        <td>${buchung.KundeNachname}, </td>
+                        <td>${buchung.KundeVorname}</td>
+                    </tr>
+                    <tr>
+                        <th>Zimmer</th>
+                        <td>${buchung.ZimmerName}</td>
+                    </tr>
+                    <tr>
+                        <th>Aufenthaltsdauer</th>
+                        <td>${buchung.BuchungZeitRaum} Nächte</td>
+                    </tr>
+                    <tr>
+                        <th>Startdatum</th>
+                        <td>${new Date(buchung.Anreise).toLocaleDateString()}</td>
+                    </tr>
+                    <tr>
+                        <th>Enddatum</th>
+                        <td>${new Date(buchung.Abreise).toLocaleDateString()}</td>
+                    </tr>
+                </table>
+
+                <div class="total">
+                    Gesamtbetrag: ${buchung.Preis} € 
+                </div>
+
+                <div class="footer">
+                    <p>FUNREST Hotelkette | Funrest Straße 1, 12345 Urlaubstadt</p>
+                    <p>Email: info@funrest.com | Telefon: +49 123 456789</p>
+                    <p>© 2025 FUNREST. Alle Rechte vorbehalten.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+
+    // Schreibe Inhalt ins neue Fenster
+    receipt.document.write(content);
+    receipt.document.close();
+
+    // Drucken und Schließen nach Laden
+    receipt.onload = () => {
+        receipt.print();
+        receipt.close();
+    };
 }
 
+// Bei Klick auf "Buchung hinzufügen" auf administrativer Kachel Buchung
+// - Erstellen einer "Form" für alle Daten einer Buchung
 async function addBuchung(){
     await fetchZimmer("").then((value)=>{
-        //console.log('newZimmer', newZimmer)
         clearDataGrid()
         const dataGrid = document.getElementById('dataGrid')
 
@@ -810,6 +957,7 @@ async function addBuchung(){
             form.appendChild(label);
 
             const input = document.createElement('input');
+            input.className = 'toolgridInput'
             input.type = field.type;
             input.id = field.id;
             input.name = field.id;
@@ -829,7 +977,7 @@ async function addBuchung(){
         zimmerSelect.name = 'zimmer';
         zimmerSelect.required = true;
     
-        newZimmer.forEach(zimmer =>{
+        ZimmerArray.forEach(zimmer =>{
             const optionZimmer = document.createElement('option');
             optionZimmer.value = zimmer.Name;
             optionZimmer.textContent = zimmer.Kategorie + ': ' + zimmer.Name;
@@ -872,8 +1020,6 @@ async function addBuchung(){
         form.addEventListener('submit', function(event) {
             event.preventDefault();
 
-            //console.log(event)
-
             const newBuchung = {
                 Id: -1,
                 KID:this[0].value,
@@ -885,8 +1031,6 @@ async function addBuchung(){
                 MID:loggedInUser.Id,
                 Code:"A"
             }
-
-            //console.log('newBuchung', newBuchung)
 
             //Hier die Speicherfunktion zur Datenbank
             RequestPHP('POST', 'AdminDataSubmit.php?search=Buchung', 
@@ -901,11 +1045,13 @@ async function addBuchung(){
         });
 
         dataGrid.appendChild(form);
-    })
-    
-    
+    })    
 }
 
+// Bei Klick auf "Offene/Alle Bewertungen" auf administrativer Kachel Bewertung
+// - Erstellen je einer BewertungsKachel für alle Bewertungen
+// - bei offene = 0: Für alle nicht freigegeneben Bewertungen
+// - bei offene = false: Für ALLE Bewertungen
 async function getBewertungen(offene){
     //console.log(offene)
     await fetchBewertungen(offene).then((value)=>{
@@ -915,7 +1061,7 @@ async function getBewertungen(offene){
 
         //newBewertungen.filter(bw=>bw);
 
-        newBewertungen.forEach(bewertung => {
+        BewertungenArray.forEach(bewertung => {
             const bewertungsDiv = document.createElement('div')
             bewertungsDiv.className = 'bewertungContainer'
             bewertungsDiv.style.width = '90%'
@@ -944,7 +1090,6 @@ async function getBewertungen(offene){
             checkboxLabel.id = bewertung.id;
             checkboxLabel.textContent = 'Freigeben';
             checkboxLabel.className = 'checkboxSpan';
-            //checkboxLabel.setAttribute('onclick', 'releaseBewertung(event)')
 
             checkboxDiv.appendChild(checkbox);
             checkboxDiv.appendChild(checkboxLabel);
@@ -977,14 +1122,8 @@ async function getBewertungen(offene){
     
 }
 
-function adjustTextareaHeight() {
-    const textareas = document.getElementsByClassName('textBewertung')
-    for(let i = 0; i < textareas.length; i++){
-        textareas[i].style.height = 'auto'; 
-        textareas[i].style.height = (textareas[i].scrollHeight + 2) + 'px';
-    }
-}
-
+// Bei Klick auf checkbox "freigegeben"
+// - aktualisierung des Status in der Datenbank
 function releaseBewertung(checkbox, id){
     const fd= new FormData();
     fd.append("Value", checkbox.checked? 1:0);
@@ -1017,49 +1156,53 @@ function releaseBewertung(checkbox, id){
 
     //Hier einfügen, dass die Freigabe geändert wurde, sodass es auf der frontpage angezeigt wird
     ////changeFreigabestatus(idBewertung, checkbox.checked)
-    
-}
-
-function clearDataGrid(){
-    const dataGrid = document.getElementById('dataGrid')
-    let children = dataGrid.children.length
-    while(children > 0){
-        dataGrid.removeChild(dataGrid.children[0])
-        children = dataGrid.children.length
+    if(checkbox.checked === true){
+        clearDataGrid()
+        getBewertungen('0')
+    }else{
+        clearDataGrid()
+        getBewertungen('1')
     }
 }
 
+// Erstellen der administrativen Kacheln
+// - wenn loggedInUser Admin ist mit der zusätzlichen Kachel für Bewertungen
 function bluidToolgrid(){
     const toolGrid = document.getElementById('toolGrid') 
-    // console.log()
     if(loggedInUser.Role === 'Admin'){
-        toolGrid.style.gridTemplateColumns = '1fr 1fr 1fr 1fr'
+        toolGrid.style.gridTemplateColumns = '25% 25% 25% 25%'
     }else{
-        toolGrid.style.gridTemplateColumns = '1fr 1fr 1fr'
+        toolGrid.style.gridTemplateColumns = '33% 33% 33%'
     }
-
 
     const filterBoxKundeDiv = document.createElement('div')
     filterBoxKundeDiv.className = 'filterBox'
     filterBoxKundeDiv.id = 'kundeFilter'
 
     const kundeH2 = document.createElement('h2')
+    kundeH2.className = 'überschriftToolgrid'
     kundeH2.textContent = 'Kunde'
+    kundeH2.style.gridRow = '1 / 2'
 
     const kundeInput = document.createElement('input')
+    kundeInput.className = 'searchInput'
     kundeInput.type = 'text'
     kundeInput.id = 'kundeSuchInput'
     kundeInput.placeholder = 'Nachnahme/Kundennummer'
+    kundeInput.style.gridRow = '2 / 3'
 
     const suchKundeButton = document.createElement('button')
+    suchKundeButton.className = 'suchButton'
     suchKundeButton.type = 'button'
     suchKundeButton.onclick = ()=> getKunde(document.getElementById('kundeSuchInput').value)
     suchKundeButton.textContent = 'Suchen'
+    suchKundeButton.style.gridRow = '2 / 3'
 
     const addKundeButton = document.createElement('button')
+    addKundeButton.className = 'buttonToolgrid'
     addKundeButton.type = 'button'
     addKundeButton.onclick = ()=> addKunde()
-    addKundeButton.textContent = 'Kunde anlegen'
+    addKundeButton.textContent = 'Kunde anlegen'    
 
     filterBoxKundeDiv.appendChild(kundeH2)
     filterBoxKundeDiv.appendChild(kundeInput)
@@ -1073,17 +1216,24 @@ function bluidToolgrid(){
     filterBoxZimmerDiv.id = 'zimmerFilter'
 
     const zimmerH2 = document.createElement('h2')
+    zimmerH2.className = 'überschriftToolgrid'
     zimmerH2.textContent = 'Zimmer'
+    zimmerH2.style.gridRow = '1 / 2'
+
 
     const zimmerInput = document.createElement('input')
+    zimmerInput.className = 'searchInput'
     zimmerInput.type = 'text'
     zimmerInput.id = 'zimmerSuchInput'
     zimmerInput.placeholder = 'Zimmernummer/Kategorie/...'
+    zimmerInput.style.gridRow = '2 / 3'
 
     const suchZimmerButton = document.createElement('button')
+    suchZimmerButton.className = 'suchButton'
     suchZimmerButton.type = 'button'
     suchZimmerButton.onclick = ()=> getZimmer(document.getElementById('zimmerSuchInput').value)
     suchZimmerButton.textContent = 'Suchen'
+    suchZimmerButton.style.gridRow = '2 / 3'
 
     filterBoxZimmerDiv.appendChild(zimmerH2)
     filterBoxZimmerDiv.appendChild(zimmerInput)
@@ -1096,19 +1246,26 @@ function bluidToolgrid(){
     filterBoxBuchungDiv.id = 'buchungFilter'
 
     const BuchungH2 = document.createElement('h2')
+    BuchungH2.className = 'überschriftToolgrid'
     BuchungH2.textContent = 'Buchung'
+    BuchungH2.style.gridRow = '1 / 2'
 
     const buchungInput = document.createElement('input')
+    buchungInput.className = 'searchInput'
     buchungInput.type = 'text'
     buchungInput.id = 'buchungSuchInput'
     buchungInput.placeholder = 'Buchungsnummer/Kundennummer'
+    buchungInput.style.gridRow = '2 / 3'
 
     const suchBuchungButton = document.createElement('button')
+    suchBuchungButton.className = 'suchButton'
     suchBuchungButton.type = 'button'
     suchBuchungButton.onclick = ()=> getBuchung(document.getElementById('buchungSuchInput').value)
     suchBuchungButton.textContent = 'Suchen'
+    suchBuchungButton.style.gridRow = '2 / 3'
 
     const addBuchungButton = document.createElement('button')
+    addBuchungButton.className = 'buttonToolgrid'
     addBuchungButton.type = 'button'
     addBuchungButton.onclick = ()=> addBuchung()
     addBuchungButton.textContent = 'Buchung anlegen'
@@ -1126,17 +1283,21 @@ function bluidToolgrid(){
         filterBoxBewertungDiv.id = 'bewertungFilter'
 
         const BewertungH2 = document.createElement('h2')
+        BewertungH2.className = 'überschriftToolgrid'
         BewertungH2.textContent = 'Bewertung'
+        BewertungH2.style.gridRow = '1 / 2'
 
         const suchOffeneBewertungButton = document.createElement('button')
+        suchOffeneBewertungButton.className = 'buttonToolgrid'
         suchOffeneBewertungButton.type = 'button'
         suchOffeneBewertungButton.onclick = ()=> getBewertungen('0')
         suchOffeneBewertungButton.textContent = 'Offene Bewertungen'
 
         const suchAlleBewertungButton = document.createElement('button')
+        suchAlleBewertungButton.className = 'buttonToolgrid'
         suchAlleBewertungButton.type = 'button'
-        suchAlleBewertungButton.onclick = ()=> getBewertungen('-1')
-        suchAlleBewertungButton.textContent = 'Alle Bewertungen'
+        suchAlleBewertungButton.onclick = ()=> getBewertungen('1')
+        suchAlleBewertungButton.textContent = 'Freigegebene Bewertungen'
 
         filterBoxBewertungDiv.appendChild(BewertungH2)
         filterBoxBewertungDiv.appendChild(suchOffeneBewertungButton)
@@ -1145,9 +1306,12 @@ function bluidToolgrid(){
         toolGrid.appendChild(filterBoxBewertungDiv)
     }else{
     }
-
 }
 
+// Funktion zum Ausloggen des Nutzers
+// - Entfernt die administrativen Kacheln
+// - Leert das dataGrid
+// - ???
 function logout(){
     const toolGrid = document.getElementById('toolGrid')
     let länge = toolGrid.children.length;
@@ -1158,9 +1322,43 @@ function logout(){
     clearDataGrid();
     loggedIn = false;
     firstVisit();
+    localStorage.removeItem('token')
     const headerbutton = document.getElementById('headerButton');
     headerbutton.style.display = 'none';
     LoginRequest();
 }
 
-window.logout = logout
+// Hilfsfunktion: rechnet ein Date in einen String um
+function formatDateForInput(date) {
+    const parts = date.split('-');
+    let year = parseInt(parts[0], 10); 
+    let month = parseInt(parts[1], 10); 
+    let day = parseInt(parts[2], 10); 
+
+    if(day/10 < 1){
+        day = '0' + day
+    }
+    if(month/10 < 1){
+        month = '0' + month
+    }
+    return `${year}-${month}-${day}`;
+}
+
+// Hilfsfunktion: passt die Größe der Textareas an bei den Bewertungskacheln
+function adjustTextareaHeight() {
+    const textareas = document.getElementsByClassName('textBewertung')
+    for(let i = 0; i < textareas.length; i++){
+        textareas[i].style.height = 'auto'; 
+        textareas[i].style.height = (textareas[i].scrollHeight + 2) + 'px';
+    }
+}
+
+// Hilfsfunktion: Entfernt alle Children des HTML-Objekts "dataGrid"
+function clearDataGrid(){
+    const dataGrid = document.getElementById('dataGrid')
+    let children = dataGrid.children.length
+    while(children > 0){
+        dataGrid.removeChild(dataGrid.children[0])
+        children = dataGrid.children.length
+    }
+}

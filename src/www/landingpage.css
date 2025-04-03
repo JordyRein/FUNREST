@@ -1,23 +1,27 @@
-.content{
-    background-color: aqua;
-    margin-top: 170px;
-    min-height: 2000px;
+#content{
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
 }
 .beschreibung{
-    background-color: burlywood;
+    background-color: rgb(228, 226, 151);
     height: fit-content;
-    margin: 5px;
+    margin-bottom: 20px;
+    border: 5px solid darkgray;
+    border-radius: 10px;
+    justify-items: center;
+    align-items: center;
 }
 #bewertungen>div{
-    background-color: lawngreen;
     display: grid;
-    grid-template-columns: 100px 1fr 50px;
+    grid-template-columns: 125px 1fr 50px;
     min-height: 50px;
 }
 .bildBewertung{
     grid: 1 / 2;
-    background-color: red;
+    background-color: lightgray;
     display: grid;
+    max-width: 125px;
 }
 .profilbild{
     justify-self: center;
@@ -34,4 +38,19 @@
     display: grid;
     grid-template-rows: 1fr 25px 25px 25px 25px 25px 1fr;
     justify-items: center;
+}
+
+h3{
+    margin:5px;
+    text-align: center;
+}
+
+p{
+    margin-left: 10px;
+    text-align: center;
+}
+
+.bewertungsDiv{
+    border: 3px solid darkgray;
+    border-radius: 5px;
 }

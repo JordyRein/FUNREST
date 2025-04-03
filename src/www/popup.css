@@ -1,4 +1,5 @@
 .popup {
+    display: flex;
     position: fixed;
     z-index: 1;
     left: 0;
@@ -12,9 +13,12 @@
     background-color: #fefefe;
     margin: auto;
     padding: 20px;
-    border: 1px solid #888;
     width: 30%;
     text-align: center;
+
+    
+    border: 5px solid darkgray;
+    border-radius: 10px;
 }
 
 .close {
@@ -53,7 +57,7 @@ input {
     border-radius: 4px;
 }
 
-button {
+/* button {
     margin-top: 10px;
     padding: 10px;
     background-color: #4CAF50;
@@ -61,8 +65,22 @@ button {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+} */
+
+.cancel{
+    align-self: end;
+    width: 30px;
+    margin-bottom: 10px;
 }
 
 button:hover {
     background-color: #45a049;
+}
+
+.cancel:hover {
+    background-color: red;
+}
+
+h3{
+    margin-top: 0px;
 }

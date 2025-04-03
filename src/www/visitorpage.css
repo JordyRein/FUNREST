@@ -1,59 +1,104 @@
 #content{
-    background-color: aqua;
-    margin-top: 170px;
-    min-height: 2000px;
-
-    display: grid;
+    /* display: grid; */
     grid-template-columns: 150px 1fr;
 }
 
-.filterGrid{
-    display: grid;
-    grid-template-rows: 250px 120px 300px;
+#filterGrid{
+    display: block;
+    margin: 3px;
+    border: 2px solid gray;
+    border-radius: 5px;
+    padding: 10px;
+    height: fit-content;
+    background-color: lightsalmon;
 }
+
+.filterItem{
+    margin-top: 10px;
+}
+
+.filterItem > input{
+    width: 100%;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.filterItem > button{
+    width: 100%;
+    height: fit-content;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.filterLabel{
+    margin: 0 3 0 10;
+}
+
+.selectDropDown{
+    width: 100%;
+    padding: 3px;
+}
+
 .zimmerGrid{
     display: grid;
     height: 150px;
     grid-template-columns: 1fr 150px;
     margin: 10px;
+    border: 2px solid black;
+    border-radius: 5px;
+    background-color: lightsalmon;
 }
 .zimmerHeader{
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 240px 1fr;
+    padding-left: 15px;
 }
-.zimmerÜberschrift{
-    font-size: 5vmin;
-    margin: 5px;
-}
+
 .zimmerInfoGrid{
     display: grid;
     grid-template-rows: 30px 15px 90px 15px;
-
     width: 100%;
-    background-color: dimgray;
+    /* background-color: dimgray; */
     margin: 10px;
 }
 .detailedInfoGrid{
     grid-row: 3;
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: 20fr 1fr 15fr 2fr 40fr 2fr 30fr;
     margin: 5px;
 }
 .buttonBuchung{
     margin: 10px;
+    margin-top: 20px;
+    margin-bottom: 2px;
+    width: 170px;
 }
+.zimmerTable > tbody > tr > td{
+    border: 2px solid rgb(100, 100, 100);
+    border-radius: 3px;
+    background-color: rgb(255, 183, 154);
+    min-width: 125px;
+    max-width: 135px;
+}
+.platzhalterTable > tbody > tr > td{
+    min-width: 2px;
+}
+
 .zimmerBild{
     margin: 10px;
-    
+    margin-top: 4px;
 }
 .genericZimmerBilder{
     width: 100%; 
     height: 100%; 
     object-fit: cover;
 }
-.datumsauswahl, .dropdown{
-    margin: 10px;
-}
+
 #dateStart, #dateEnd{
     margin-bottom: 8px;
 }
@@ -97,4 +142,47 @@
 
 .gridContainerHeader{
     background-color: blueviolet;
+}
+
+.profileBuchungsContainer{
+    margin: 10px;
+}
+
+.buchungsContainerProfile > div{
+    border: 2px solid darkgray;
+    height: 100%;
+    width: 100%;
+    background-color: rgb(128, 240, 218);
+    align-content: center;
+}
+
+.buchungsContainerProfile > div > button{
+    height: 100%;
+    width: 100%;
+}
+
+.profileBewertungsContainer{
+    margin: 10px;
+}
+
+.bewertungContainerProfil, .bewertungContainer{
+    border: 2px solid darkgray;
+    background-color: rgb(128, 240, 218);
+    align-content: center;
+    width: 90%;
+    margin-bottom: 5px;
+}
+
+.textContainer{
+    align-content: center;
+    margin-left: 5px;
+}
+
+#profilContainer{
+    border: 2px solid darkgray;
+    background-color: rgb(128, 240, 218);
+    align-content: center;
+    width: 90%;
+    margin: 10px;
+    padding: 5px;
 }

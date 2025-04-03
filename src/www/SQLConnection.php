@@ -1,9 +1,12 @@
 <?php
 
 function ConnectMySQL(){
-  $env= parse_ini_file(dirname(__FILE__,3)."/.env");
+  $user = "root";
+  $host = "localhost";
+  $pass = "";
+  $dbname = "FUNREST";
 
-  $conn = new mysqli($env["HOST"], $env["FUN_USER"], $env["DBPASS"], $env["DBNAME"]);
+  $conn = new mysqli($host, $user, $pass, $dbname);
 
   if ($conn->connect_error){
     die ("Connection Failed ".$conn->connect_error);

@@ -1,3 +1,13 @@
+// --------------------------------------------------------------------
+// Anlegen von verschiedenen immer wieder genutzten Variablen
+// --------------------------------------------------------------------
+
+// -- Abspeichern der angezeigten/anzuzeigenden Bewertungen
+let ArrayBewertungen
+
+// --------------------------------------------------------------------
+// Ausführen von Funktionen die nach dem fertigen Laden der Website ausgeführt werden müssen anch dem ersten Starten
+// --------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function() {
     ladeBewertungen()
     document.getElementById('headerButton').addEventListener('click', function() {
@@ -5,47 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// const ArrayBewertungen = [
-//     {
-//         id: 'kl523',
-//         kunde: {vorname: "Hans",
-//                 nachname: "Wurst", 
-//                 strHausnummer: "Fleischeralle 9",
-//                 plz: '23487',
-//                 stadt: "Hackstadt",
-//                 geschlecht: "d",
-//                 gebdatum: new Date()},
-//         titel: 'richtiges Schmankerl hier',
-//         text: 'Bartwurstkeksemmeln sind geil, weil sie die perfekte Kombination aus den würzigen, herzhaften Aromen der Bratwurst und der weichen, fluffigen Textur eines frischen Brötchens bieten. Diese Köstlichkeit, die in Deutschland und darüber hinaus beliebt ist, ist nicht nur ein Geschmackserlebnis, sondern auch eine Hommage an die traditionelle deutsche Küche. Ob nun beim Frühstück, Mittagessen oder als Snack, die Bartwurstkeksemmeln sind ein Fest für den Gaumen und vereinen Einfachheit mit Genuss auf eine Weise, die sowohl satt als auch zufrieden macht.', 
-//         sterne: 5,
-//         freigegeben: true
-//     },
-//     {
-//         id: 'gt123',
-//         kunde: {vorname: "Hans",
-//                 nachname: "Wurst", 
-//                 strHausnummer: "Fleischeralle 9",
-//                 plz: '23487',
-//                 stadt: "Hackstadt",
-//                 geschlecht: "d",
-//                 gebdatum: new Date()},
-//         titel: 'doof wars',
-//         text: 'naja a bissala arsch wars halt', 
-//         sterne: 1,
-//         freigegeben: true
-//     },
-// ]
-let ArrayBewertungen
+// --------------------------------------------------------------------
+// Block aller verwendeten Funktionen
+// --------------------------------------------------------------------
 
-async function fetchBewertungen(suchbegriff){
-    const url = "AdminSearch.php?req=Bewertung&open="+encodeURIComponent(suchbegriff);
-    console.log('suchbegriff', suchbegriff)
-    await RequestPHPAsync(url, (data)=>{
-        const bewertung = JSON.parse(data)
-        ArrayBewertungen = bewertung
-    }, ()=>{})
-}
-
+// erstellen der Anzeige für alle freigegeben Bewertungen
 async function ladeBewertungen(){
     const bewertungsContainer = document.getElementById('bewertungen')
     await fetchBewertungen('1').then((value)=>{
@@ -53,6 +27,7 @@ async function ladeBewertungen(){
             console.log(bewertung)
 
             const bewertungDiv = document.createElement('div');
+            bewertungDiv.className = 'bewertungsDiv'
             bewertungDiv.id = bewertung.BewertungId;
             bewertungDiv.style.marginBottom = '20px'
     
@@ -116,4 +91,14 @@ async function ladeBewertungen(){
     
     })
     
+}
+
+// Datenbankabfrage: Abspeichern aller Bewertungen nach Status auf Variable "ArrayBewertungen" (hier immer nur freigegeben)
+async function fetchBewertungen(suchbegriff){
+    const url = "AdminSearch.php?req=Bewertung&open="+encodeURIComponent(suchbegriff);
+    console.log('suchbegriff', suchbegriff)
+    await RequestPHPAsync(url, (data)=>{
+        const bewertung = JSON.parse(data)
+        ArrayBewertungen = bewertung
+    }, ()=>{})
 }
